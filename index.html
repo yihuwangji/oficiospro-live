@@ -204,6 +204,7 @@
   .city-card:hover { background: var(--amber); border-color: var(--amber); color: var(--slate); }
   .city-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; }
   .city-count { font-size: 0.78rem; opacity: 0.65; }
+  .city-community { font-size: 0.72rem; opacity: .82; }
 
   /* ── HOW IT WORKS ── */
   .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
@@ -386,13 +387,6 @@
         <span class="search-field-icon">📍</span>
         <select id="searchCity">
           <option value="">Todas las ciudades</option>
-          <option>Madrid</option><option>Barcelona</option><option>Valencia</option>
-          <option>Sevilla</option><option>Zaragoza</option><option>Málaga</option>
-          <option>Murcia</option><option>Palma</option><option>Las Palmas</option>
-          <option>Bilbao</option><option>Alicante</option><option>Córdoba</option>
-          <option>Valladolid</option><option>Vigo</option><option>Gijón</option>
-          <option>Granada</option><option>Elche</option><option>Oviedo</option>
-          <option>Badalona</option><option>Terrassa</option>
         </select>
       </div>
       <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
@@ -493,18 +487,7 @@
       <p class="section-sub">Profesionales disponibles en toda España</p>
     </div>
     <div class="cities-grid">
-      <div class="city-card" onclick="setCity('Madrid')"><div class="city-name">🏛️ Madrid</div><div class="city-count">1.240 pros</div></div>
-      <div class="city-card" onclick="setCity('Barcelona')"><div class="city-name">🌊 Barcelona</div><div class="city-count">980 pros</div></div>
-      <div class="city-card" onclick="setCity('Valencia')"><div class="city-name">🍊 Valencia</div><div class="city-count">620 pros</div></div>
-      <div class="city-card" onclick="setCity('Sevilla')"><div class="city-name">💃 Sevilla</div><div class="city-count">540 pros</div></div>
-      <div class="city-card" onclick="setCity('Zaragoza')"><div class="city-name">🦁 Zaragoza</div><div class="city-count">310 pros</div></div>
-      <div class="city-card" onclick="setCity('Málaga')"><div class="city-name">☀️ Málaga</div><div class="city-count">420 pros</div></div>
-      <div class="city-card" onclick="setCity('Bilbao')"><div class="city-name">🌉 Bilbao</div><div class="city-count">280 pros</div></div>
-      <div class="city-card" onclick="setCity('Alicante')"><div class="city-name">⛵ Alicante</div><div class="city-count">360 pros</div></div>
-      <div class="city-card" onclick="setCity('Granada')"><div class="city-name">🏔️ Granada</div><div class="city-count">240 pros</div></div>
-      <div class="city-card" onclick="setCity('Murcia')"><div class="city-name">🌹 Murcia</div><div class="city-count">290 pros</div></div>
-      <div class="city-card" onclick="setCity('Palma')"><div class="city-name">🏝️ Palma</div><div class="city-count">210 pros</div></div>
-      <div class="city-card" onclick="setCity('Valladolid')"><div class="city-name">🏰 Valladolid</div><div class="city-count">180 pros</div></div>
+      <!-- Cards generadas por JS -->
     </div>
   </div>
 </section>
@@ -585,7 +568,7 @@
         <select><option>Albañilería</option><option>Cerrajería</option><option>Pintura</option><option>Jardinería</option><option>Fontanería</option><option>Electricidad</option><option>Carpintería</option><option>Climatización</option><option>Reformas generales</option></select>
       </div>
       <div class="form-group"><label>Ciudad</label>
-        <select><option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Zaragoza</option><option>Málaga</option><option>Bilbao</option><option>Alicante</option><option>Granada</option><option>Murcia</option></select>
+        <select id="registerCitySelect"><option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Zaragoza</option><option>Málaga</option><option>Bilbao</option><option>Alicante</option><option>Granada</option><option>Murcia</option></select>
       </div>
       <div class="form-group"><label>Contraseña</label><input type="password" placeholder="Mínimo 8 caracteres"></div>
       <div class="form-check">
@@ -659,6 +642,138 @@ let professionals = [
   { name:"Paula Rivas", role:"Mudanzas", city:"Murcia", rating:4.7, reviews:88, price:24, desc:"Mudanzas locales, embalaje, montaje de muebles y pequeños portes.", emoji:"🛋️", available:true, response:"16 min", jobs:204 },
   { name:"Diego Martín", role:"Reformas", city:"Valladolid", rating:4.8, reviews:131, price:33, desc:"Reformas de baños, cocinas y viviendas completas con coordinación de gremios.", emoji:"🔩", available:true, response:"19 min", jobs:267 },
 ];
+
+const spainCities = [
+  { name:"Madrid", community:"Comunidad de Madrid", pop:3332035, pros:1240, icon:"🏛️" },
+  { name:"Barcelona", community:"Cataluña", pop:1660122, pros:980, icon:"🌊" },
+  { name:"Valencia", community:"Comunitat Valenciana", pop:807693, pros:620, icon:"🍊" },
+  { name:"Sevilla", community:"Andalucía", pop:684164, pros:540, icon:"💃" },
+  { name:"Zaragoza", community:"Aragón", pop:682513, pros:310, icon:"🦁" },
+  { name:"Málaga", community:"Andalucía", pop:586384, pros:420, icon:"☀️" },
+  { name:"Murcia", community:"Región de Murcia", pop:469177, pros:290, icon:"🌹" },
+  { name:"Palma", community:"Illes Balears", pop:423350, pros:210, icon:"🏝️" },
+  { name:"Las Palmas de Gran Canaria", community:"Canarias", pop:378027, pros:205, icon:"🌴" },
+  { name:"Bilbao", community:"País Vasco", pop:346096, pros:280, icon:"🌉" },
+  { name:"Alicante", community:"Comunitat Valenciana", pop:349282, pros:360, icon:"⛵" },
+  { name:"Córdoba", community:"Andalucía", pop:323763, pros:230, icon:"🕌" },
+  { name:"Valladolid", community:"Castilla y León", pop:297775, pros:180, icon:"🏰" },
+  { name:"Vigo", community:"Galicia", pop:293652, pros:170, icon:"⚓" },
+  { name:"Gijón", community:"Asturias", pop:267706, pros:160, icon:"🌊" },
+  { name:"L'Hospitalet de Llobregat", community:"Cataluña", pop:274455, pros:150, icon:"🏙️" },
+  { name:"Vitoria-Gasteiz", community:"País Vasco", pop:255886, pros:145, icon:"🌿" },
+  { name:"A Coruña", community:"Galicia", pop:247604, pros:140, icon:"🌊" },
+  { name:"Elche", community:"Comunitat Valenciana", pop:238293, pros:138, icon:"🌴" },
+  { name:"Granada", community:"Andalucía", pop:232208, pros:240, icon:"🏔️" },
+  { name:"Terrassa", community:"Cataluña", pop:225277, pros:122, icon:"🏭" },
+  { name:"Badalona", community:"Cataluña", pop:225957, pros:118, icon:"🌊" },
+  { name:"Oviedo", community:"Asturias", pop:217552, pros:115, icon:"⛰️" },
+  { name:"Cartagena", community:"Región de Murcia", pop:218050, pros:112, icon:"⚓" },
+  { name:"Sabadell", community:"Cataluña", pop:218300, pros:111, icon:"🏭" },
+  { name:"Jerez de la Frontera", community:"Andalucía", pop:213688, pros:110, icon:"🍇" },
+  { name:"Móstoles", community:"Comunidad de Madrid", pop:210592, pros:108, icon:"🏘️" },
+  { name:"Santa Cruz de Tenerife", community:"Canarias", pop:209194, pros:106, icon:"🌋" },
+  { name:"Pamplona", community:"Navarra", pop:203418, pros:105, icon:"🐂" },
+  { name:"Almería", community:"Andalucía", pop:200753, pros:103, icon:"☀️" },
+  { name:"Alcalá de Henares", community:"Comunidad de Madrid", pop:197562, pros:102, icon:"📚" },
+  { name:"Fuenlabrada", community:"Comunidad de Madrid", pop:192233, pros:100, icon:"🏘️" },
+  { name:"Leganés", community:"Comunidad de Madrid", pop:190665, pros:98, icon:"🏘️" },
+  { name:"Donostia/San Sebastián", community:"País Vasco", pop:188102, pros:96, icon:"🌊" },
+  { name:"Getafe", community:"Comunidad de Madrid", pop:185899, pros:95, icon:"🏘️" },
+  { name:"Burgos", community:"Castilla y León", pop:174051, pros:92, icon:"⛪" },
+  { name:"Albacete", community:"Castilla-La Mancha", pop:173206, pros:90, icon:"🌾" },
+  { name:"Santander", community:"Cantabria", pop:172726, pros:89, icon:"🌊" },
+  { name:"Castelló de la Plana", community:"Comunitat Valenciana", pop:171857, pros:88, icon:"🍊" },
+  { name:"Logroño", community:"La Rioja", pop:151136, pros:82, icon:"🍷" },
+  { name:"Badajoz", community:"Extremadura", pop:150146, pros:80, icon:"🌳" },
+  { name:"Salamanca", community:"Castilla y León", pop:143269, pros:78, icon:"🎓" },
+  { name:"Huelva", community:"Andalucía", pop:142538, pros:77, icon:"🌊" },
+  { name:"Lleida", community:"Cataluña", pop:140403, pros:76, icon:"🍐" },
+  { name:"Tarragona", community:"Cataluña", pop:138326, pros:75, icon:"🏛️" },
+  { name:"Marbella", community:"Andalucía", pop:156295, pros:92, icon:"🌴" },
+  { name:"León", community:"Castilla y León", pop:121281, pros:70, icon:"🦁" },
+  { name:"Cádiz", community:"Andalucía", pop:113066, pros:68, icon:"🌊" },
+  { name:"Jaén", community:"Andalucía", pop:111669, pros:66, icon:"🫒" },
+  { name:"Ourense", community:"Galicia", pop:103756, pros:64, icon:"♨️" },
+  { name:"Girona", community:"Cataluña", pop:103369, pros:63, icon:"🌉" },
+  { name:"Lugo", community:"Galicia", pop:97211, pros:59, icon:"🧱" },
+  { name:"Cáceres", community:"Extremadura", pop:95917, pros:58, icon:"🏰" },
+  { name:"Santiago de Compostela", community:"Galicia", pop:98179, pros:60, icon:"⭐" },
+  { name:"Toledo", community:"Castilla-La Mancha", pop:85811, pros:55, icon:"🏰" },
+  { name:"Ceuta", community:"Ceuta", pop:83517, pros:50, icon:"🌊" },
+  { name:"Melilla", community:"Melilla", pop:85170, pros:50, icon:"🌊" },
+  { name:"Pontevedra", community:"Galicia", pop:82828, pros:49, icon:"🌉" },
+  { name:"Palencia", community:"Castilla y León", pop:76642, pros:45, icon:"🏛️" },
+  { name:"Ciudad Real", community:"Castilla-La Mancha", pop:74623, pros:44, icon:"🌾" },
+  { name:"Zamora", community:"Castilla y León", pop:59475, pros:36, icon:"🏰" },
+  { name:"Ávila", community:"Castilla y León", pop:57741, pros:35, icon:"🧱" },
+  { name:"Segovia", community:"Castilla y León", pop:52057, pros:34, icon:"🏛️" },
+  { name:"Huesca", community:"Aragón", pop:53956, pros:34, icon:"⛰️" },
+  { name:"Cuenca", community:"Castilla-La Mancha", pop:53516, pros:33, icon:"🏞️" },
+  { name:"Soria", community:"Castilla y León", pop:39821, pros:28, icon:"🌲" },
+  { name:"Teruel", community:"Aragón", pop:35890, pros:26, icon:"🧱" },
+  { name:"Mérida", community:"Extremadura", pop:59324, pros:36, icon:"🏛️" },
+  { name:"Arrecife", community:"Canarias", pop:65507, pros:38, icon:"🌋" },
+  { name:"Eivissa", community:"Illes Balears", pop:51045, pros:34, icon:"🏝️" },
+  { name:"Manresa", community:"Cataluña", pop:78479, pros:46, icon:"🏘️" },
+  { name:"Figueres", community:"Cataluña", pop:47880, pros:31, icon:"🎨" },
+  { name:"Vic", community:"Cataluña", pop:48235, pros:31, icon:"🏘️" },
+  { name:"Rubí", community:"Cataluña", pop:80170, pros:47, icon:"🏘️" },
+  { name:"Sant Cugat del Vallès", community:"Cataluña", pop:97530, pros:60, icon:"🌿" },
+  { name:"Dos Hermanas", community:"Andalucía", pop:139684, pros:76, icon:"🌞" },
+  { name:"Algeciras", community:"Andalucía", pop:122368, pros:70, icon:"⚓" },
+  { name:"Mijas", community:"Andalucía", pop:91113, pros:57, icon:"☀️" },
+  { name:"Fuengirola", community:"Andalucía", pop:85859, pros:55, icon:"🏖️" },
+  { name:"Motril", community:"Andalucía", pop:60405, pros:37, icon:"🌊" },
+  { name:"Benidorm", community:"Comunitat Valenciana", pop:74324, pros:44, icon:"🏖️" },
+  { name:"Torrevieja", community:"Comunitat Valenciana", pop:91867, pros:58, icon:"🌊" },
+  { name:"Orihuela", community:"Comunitat Valenciana", pop:83465, pros:51, icon:"🍊" },
+  { name:"Gandia", community:"Comunitat Valenciana", pop:79647, pros:47, icon:"🏖️" },
+  { name:"Alcobendas", community:"Comunidad de Madrid", pop:119416, pros:69, icon:"🏘️" },
+  { name:"Torrejón de Ardoz", community:"Comunidad de Madrid", pop:137711, pros:74, icon:"✈️" },
+  { name:"Parla", community:"Comunidad de Madrid", pop:133482, pros:73, icon:"🏘️" },
+  { name:"Las Rozas de Madrid", community:"Comunidad de Madrid", pop:99757, pros:61, icon:"🌲" },
+  { name:"Rivas-Vaciamadrid", community:"Comunidad de Madrid", pop:100275, pros:62, icon:"🌿" },
+  { name:"Torrelavega", community:"Cantabria", pop:51597, pros:33, icon:"⛰️" },
+  { name:"Avilés", community:"Asturias", pop:75518, pros:45, icon:"⚓" },
+  { name:"Siero", community:"Asturias", pop:52426, pros:34, icon:"🌿" },
+  { name:"Barakaldo", community:"País Vasco", pop:101229, pros:62, icon:"🏭" },
+  { name:"Irun", community:"País Vasco", pop:62920, pros:38, icon:"🌉" },
+  { name:"Portugalete", community:"País Vasco", pop:44464, pros:30, icon:"⚓" },
+].sort((a, b) => b.pop - a.pop || a.name.localeCompare(b.name, "es"));
+
+function formatPopulation(value) {
+  return value.toLocaleString("es-ES");
+}
+
+function renderCityOptions() {
+  const select = document.getElementById("searchCity");
+  if (!select) return;
+  select.innerHTML = '<option value="">Todas las ciudades</option>' + spainCities
+    .map((city) => `<option value="${city.name}">${city.name} — ${city.community} (${formatPopulation(city.pop)} hab.)</option>`)
+    .join("");
+  const datalist = document.getElementById("cityList");
+  if (datalist) {
+    datalist.innerHTML = spainCities.map((city) => `<option value="${city.name}">${city.community}</option>`).join("");
+  }
+  const registerSelect = document.getElementById("registerCitySelect");
+  if (registerSelect) {
+    registerSelect.innerHTML = spainCities
+      .map((city) => `<option value="${city.name}">${city.name} — ${city.community}</option>`)
+      .join("");
+  }
+}
+
+function renderCityCards() {
+  const grid = document.querySelector(".cities-grid");
+  if (!grid) return;
+  grid.innerHTML = spainCities.map((city) => `
+    <div class="city-card" onclick="setCity('${city.name.replace(/'/g, "\\'")}')">
+      <div class="city-name">${city.icon} ${city.name}</div>
+      <div class="city-community">${city.community}</div>
+      <div class="city-count">${city.pros} pros · ${formatPopulation(city.pop)} hab.</div>
+    </div>
+  `).join("");
+}
 
 let currentFilter = "";
 
@@ -829,7 +944,8 @@ function openModal(type, proName = "") {
       <div class="form-group"><label>Nombre</label><input id="regName" type="text" placeholder="Tu nombre completo"></div>
       <div class="form-group"><label>Email</label><input id="regEmail" type="email" placeholder="tu@email.com"></div>
       <div class="form-group" id="profField"><label>Especialidad</label><select id="regSpecialty"><option>Fontanería</option><option>Electricidad</option><option>Pintura</option><option>Reformas</option></select></div>
-      <div class="form-group"><label>Ciudad</label><input id="regCity" type="text" placeholder="Madrid"></div>
+      <div class="form-group"><label>Ciudad</label><input id="regCity" type="text" list="cityList" placeholder="Madrid"></div>
+      <datalist id="cityList"></datalist>
       <div class="form-group"><label>Contraseña</label><input id="regPass" type="password" placeholder="Mínimo 8 caracteres"></div>
       <button class="btn-register" style="margin-top:8px" onclick="handleRegister()">Registrarme gratis →</button>`;
   }
@@ -968,6 +1084,8 @@ async function loadPublicData() {
   }
 }
 
+renderCityOptions();
+renderCityCards();
 loadPublicData();
 </script>
 </body>
