@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import { createHash } from "node:crypto";
 
 let store;
 const dataKey = "production";
@@ -32,6 +33,9 @@ const seed = {
     title: "Encuentra el profesional que necesitas cerca de ti",
     subtitle: "Conectamos a particulares con profesionales verificados en toda España.",
   },
+  settings: {
+    adminPasswordHash: "",
+  },
 };
 
 function json(body, status = 200) {
@@ -47,7 +51,14 @@ function json(body, status = 200) {
 async function readData() {
   store ||= getStore({ name: "oficiospro-data", consistency: "strong" });
   const existing = await store.get(dataKey, { type: "json" });
-  if (existing) return existing;
+  if (existing) {
+    existing.professionals ||= [];
+    existing.leads ||= [];
+    existing.users ||= [];
+    existing.content ||= {};
+    existing.settings ||= { adminPasswordHash: "" };
+    return existing;
+  }
   await store.setJSON(dataKey, seed);
   return structuredClone(seed);
 }
@@ -68,8 +79,20 @@ async function parseBody(req) {
 
 function requireAdmin(req) {
   const token = req.headers.get("x-admin-token");
+  return Boolean(token);
+}
+
+function hashSecret(value) {
+  return createHash("sha256").update(String(value)).digest("hex");
+}
+
+function isAdminTokenValid(data, token) {
+  if (!token) return false;
+  if (data.settings?.adminPasswordHash) {
+    return hashSecret(token) === data.settings.adminPasswordHash;
+  }
   const expected = Netlify.env.get("ADMIN_TOKEN") || "admin123";
-  return token && token === expected;
+  return token === expected;
 }
 
 function nextId(items) {
@@ -131,8 +154,9 @@ async function handlePublic(req, context) {
 }
 
 async function handleAdmin(req, context) {
-  if (!requireAdmin(req)) return json({ error: "Unauthorized" }, 401);
   const data = await readData();
+  const token = req.headers.get("x-admin-token");
+  if (!requireAdmin(req) || !isAdminTokenValid(data, token)) return json({ error: "Unauthorized" }, 401);
   const action = context.params.action;
 
   if (req.method === "GET") return json(data);
@@ -177,6 +201,17 @@ async function handleAdmin(req, context) {
     data.content = { ...data.content, ...body };
     await writeData(data);
     return json(data);
+  }
+
+  if (action === "password" && req.method === "PATCH") {
+    const currentPassword = String(body.currentPassword || "");
+    const newPassword = String(body.newPassword || "");
+    if (!isAdminTokenValid(data, currentPassword)) return json({ error: "Current password is incorrect" }, 401);
+    if (newPassword.length < 12) return json({ error: "New password must be at least 12 characters" }, 400);
+    data.settings ||= {};
+    data.settings.adminPasswordHash = hashSecret(newPassword);
+    await writeData(data);
+    return json({ ok: true });
   }
 
   if (action === "reset" && req.method === "POST") {

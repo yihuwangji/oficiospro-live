@@ -197,6 +197,14 @@
         <h2>Estado de publicación</h2>
         <p style="color:var(--muted);line-height:1.6;margin-top:8px">Producción: <a href="https://oficiospro-live.netlify.app" target="_blank">https://oficiospro-live.netlify.app</a></p>
       </div>
+      <div class="panel">
+        <h2>Cambiar clave de后台</h2>
+        <p style="color:var(--muted);line-height:1.6;margin:8px 0 14px">La nueva clave se aplica al API de administración y será necesaria en el próximo acceso.</p>
+        <div class="field"><label>Clave actual</label><input id="currentAdminPass" type="password" placeholder="Clave actual"></div>
+        <div class="field"><label>Nueva clave</label><input id="newAdminPass" type="password" placeholder="Mínimo 12 caracteres"></div>
+        <div class="field"><label>Repetir nueva clave</label><input id="repeatAdminPass" type="password" placeholder="Repite la nueva clave"></div>
+        <button class="btn" onclick="changePassword()">Actualizar clave</button>
+      </div>
     </section>
   </main>
 </section>
@@ -363,6 +371,25 @@ async function saveContent() {
   });
   renderAll();
   toast("Contenido guardado.");
+}
+
+async function changePassword() {
+  const currentPassword = document.getElementById("currentAdminPass").value;
+  const newPassword = document.getElementById("newAdminPass").value;
+  const repeatPassword = document.getElementById("repeatAdminPass").value;
+  if (!currentPassword || !newPassword) return toast("Completa la clave actual y la nueva.");
+  if (newPassword.length < 12) return toast("La nueva clave debe tener al menos 12 caracteres.");
+  if (newPassword !== repeatPassword) return toast("Las nuevas claves no coinciden.");
+  await api("/password", {
+    method: "PATCH",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  adminToken = newPassword;
+  sessionStorage.setItem("oficiospro_admin_token", adminToken);
+  document.getElementById("currentAdminPass").value = "";
+  document.getElementById("newAdminPass").value = "";
+  document.getElementById("repeatAdminPass").value = "";
+  toast("Clave actualizada correctamente.");
 }
 
 function exportData() {
