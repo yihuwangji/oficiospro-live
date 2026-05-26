@@ -19,6 +19,25 @@ const professionals = [
   { id: 12, name:"Diego Martín", role:"Reformas", city:"Valladolid", rating:4.8, reviews:131, price:33, desc:"Reformas de baños, cocinas y viviendas completas con coordinación de gremios.", emoji:"🔩", available:true, response:"19 min", jobs:267 },
 ];
 
+const defaultPhones = {
+  1: "600 111 222",
+  2: "600 222 333",
+  3: "600 333 444",
+  4: "600 444 555",
+  5: "600 555 666",
+  6: "600 666 777",
+  7: "600 777 888",
+  8: "600 888 999",
+  9: "611 111 222",
+  10: "611 222 333",
+  11: "611 333 444",
+  12: "611 444 555",
+};
+
+professionals.forEach((professional) => {
+  professional.phone ||= defaultPhones[professional.id] || "";
+});
+
 const seed = {
   professionals,
   users: [
@@ -54,6 +73,9 @@ async function readData() {
   const existing = await store.get(dataKey, { type: "json" });
   if (existing) {
     existing.professionals ||= [];
+    existing.professionals.forEach((professional) => {
+      professional.phone ||= defaultPhones[professional.id] || "";
+    });
     existing.leads ||= [];
     existing.users ||= [];
     existing.reports ||= [];
@@ -208,6 +230,7 @@ async function handleAdmin(req, context) {
       rating: Number(body.rating || 4.5),
       reviews: Number(body.reviews || 0),
       price: Number(body.price || 25),
+      phone: String(body.phone || "").trim().slice(0, 40),
       desc: String(body.desc || "Profesional verificado por OficiosPro.").trim(),
       emoji: String(body.emoji || "🛠️"),
       available: Boolean(body.available),

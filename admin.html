@@ -173,7 +173,7 @@
       <div class="grid-2">
         <div class="panel">
           <div class="panel-head"><h2>师傅 / Profesionales</h2><button class="btn secondary" onclick="clearProForm()">新增 / Nuevo</button></div>
-          <table><thead><tr><th>姓名 / Nombre</th><th>工种 / Oficio</th><th>城市 / Ciudad</th><th>评分 / Rating</th><th>启用 / Activo</th><th></th></tr></thead><tbody id="proRows"></tbody></table>
+          <table><thead><tr><th>姓名 / Nombre</th><th>工种 / Oficio</th><th>城市 / Ciudad</th><th>电话 / WhatsApp</th><th>评分 / Rating</th><th>启用 / Activo</th><th></th></tr></thead><tbody id="proRows"></tbody></table>
         </div>
         <div class="panel">
           <h2 id="proFormTitle">新增师傅 / Nuevo profesional</h2>
@@ -182,6 +182,7 @@
           <div class="field"><label>城市 / Ciudad</label><input id="proCity"></div>
           <div class="field"><label>评分 / Valoración</label><input id="proRating" type="number" min="1" max="5" step=".1"></div>
           <div class="field"><label>每小时价格 / Precio por hora</label><input id="proPrice" type="number" min="1"></div>
+          <div class="field"><label>电话 / WhatsApp</label><input id="proPhone" placeholder="600 123 456"></div>
           <div class="field"><label>状态 / Estado</label><select id="proActive"><option value="true">启用 / Activo</option><option value="false">暂停 / Pausado</option></select></div>
           <button class="btn" onclick="savePro()">保存师傅 / Guardar profesional</button>
         </div>
@@ -361,7 +362,7 @@ async function setReportStatus(id, status) {
 function renderPros() {
   document.getElementById("proRows").innerHTML = data.professionals.map((pro) => `
     <tr>
-      <td>${pro.name}</td><td>${pro.role}</td><td>${pro.city}</td><td>${pro.rating}</td><td>${pro.available ? "Sí" : "No"}</td>
+      <td>${pro.name}</td><td>${pro.role}</td><td>${pro.city}</td><td>${pro.phone || "-"}</td><td>${pro.rating}</td><td>${pro.available ? "Sí" : "No"}</td>
       <td class="row-actions"><button class="icon-btn" onclick="editPro(${pro.id})">✎</button><button class="icon-btn" onclick="deletePro(${pro.id})">×</button></td>
     </tr>`).join("");
 }
@@ -375,13 +376,14 @@ function editPro(id) {
   document.getElementById("proCity").value = pro.city;
   document.getElementById("proRating").value = pro.rating;
   document.getElementById("proPrice").value = pro.price;
+  document.getElementById("proPhone").value = pro.phone || "";
   document.getElementById("proActive").value = String(pro.available);
 }
 
 function clearProForm() {
   editingPro = null;
   document.getElementById("proFormTitle").textContent = "新增师傅 / Nuevo profesional";
-  ["proName", "proRole", "proCity", "proRating", "proPrice"].forEach((id) => document.getElementById(id).value = "");
+  ["proName", "proRole", "proCity", "proRating", "proPrice", "proPhone"].forEach((id) => document.getElementById(id).value = "");
   document.getElementById("proActive").value = "true";
 }
 
@@ -393,6 +395,7 @@ async function savePro() {
     city: document.getElementById("proCity").value.trim(),
     rating: Number(document.getElementById("proRating").value || 4.5),
     price: Number(document.getElementById("proPrice").value || 25),
+    phone: document.getElementById("proPhone").value.trim(),
     available: document.getElementById("proActive").value === "true"
   };
   if (!pro.name || !pro.role || !pro.city) return toast("Completa nombre, oficio y ciudad.");

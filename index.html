@@ -661,6 +661,28 @@ let professionals = [
   { name:"Diego Martín", role:"Reformas", city:"Valladolid", rating:4.8, reviews:131, price:33, desc:"Reformas de baños, cocinas y viviendas completas con coordinación de gremios.", emoji:"🔩", available:true, response:"19 min", jobs:267 },
 ];
 
+const proPhones = {
+  1: "600 111 222",
+  2: "600 222 333",
+  3: "600 333 444",
+  4: "600 444 555",
+  5: "600 555 666",
+  6: "600 666 777",
+  7: "600 777 888",
+  8: "600 888 999",
+  9: "611 111 222",
+  10: "611 222 333",
+  11: "611 333 444",
+  12: "611 444 555",
+  "Carlos Molina": "600 111 222",
+  "Ana Rosales": "600 222 333",
+  "Javier Ortiz": "600 333 444",
+  "Roberto Gil": "600 555 666",
+  "Nuria Campos": "600 777 888",
+  "Sergio Vidal": "600 888 999",
+  "Irene Costa": "611 111 222",
+};
+
 const spainCities = [
   { name:"Madrid", community:"Comunidad de Madrid", pop:3332035, pros:1240, icon:"🏛️" },
   { name:"Barcelona", community:"Cataluña", pop:1660122, pros:980, icon:"🌊" },
@@ -866,7 +888,7 @@ function renderPros(list) {
           <div class="prof-actions">
             <button class="btn-share" onclick="sharePro('${String(p.id || p.name).replace(/'/g, "\\'")}')">Compartir</button>
             <button class="btn-report" onclick="reportPro('${String(p.id || p.name).replace(/'/g, "\\'")}')">Denunciar</button>
-            <button class="btn-contact" onclick="contactPro('${p.name.replace(/'/g, "\\'")}')">Contactar</button>
+            <button class="btn-contact" onclick="openWhatsAppPro('${String(p.id || p.name).replace(/'/g, "\\'")}')">WhatsApp</button>
           </div>
         </div>
       </div>
@@ -929,6 +951,23 @@ function getProByRef(ref) {
     professionals.find((p) => p.name === ref);
 }
 
+function getProPhone(pro) {
+  return pro?.phone || proPhones[pro?.id] || proPhones[pro?.name] || "600 000 000";
+}
+
+function getWhatsAppUrl(pro) {
+  const phone = getProPhone(pro).replace(/\D/g, "");
+  const fullPhone = phone.startsWith("34") ? phone : `34${phone}`;
+  const message = `Hola ${pro.name}, te contacto desde OficiosPro. Necesito presupuesto para ${pro.role} en ${pro.city}.`;
+  return `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+}
+
+function openWhatsAppPro(ref) {
+  const pro = getProByRef(ref);
+  if (!pro) return showToast("No encontramos este profesional.");
+  window.open(getWhatsAppUrl(pro), "_blank", "noopener");
+}
+
 function getShareUrl(pro) {
   const url = new URL(window.location.href);
   url.searchParams.set("pro", String(pro.id || pro.name));
@@ -962,9 +1001,10 @@ function openModal(type, proName = "") {
       <div class="form-group"><label>Tu nombre</label><input id="leadName" type="text" placeholder="Ej: Marta García"></div>
       <div class="form-group"><label>Teléfono o email</label><input id="leadContact" type="text" placeholder="Ej: 600 123 456"></div>
       <div class="form-group"><label>Trabajo que necesitas</label><input id="leadJob" type="text" placeholder="Describe brevemente el trabajo"></div>
+      <div class="share-link-box">${getProPhone(pro)}</div>
       <div class="quick-actions">
+        <button class="btn-register" style="background:var(--amber)" onclick="openWhatsAppPro('${String(pro.id || pro.name).replace(/'/g, "\\'")}')">Contactar por WhatsApp</button>
         <button class="btn-register" onclick="sendLead('${pro.name.replace(/'/g, "\\'")}')">Enviar solicitud</button>
-        <button class="btn-register" style="background:var(--amber)" onclick="showToast('📞 Te mostramos el teléfono de ${pro.name}.')">Ver teléfono</button>
       </div>`;
   } else if (type === "share") {
     const pro = getProByRef(proName);
@@ -994,7 +1034,7 @@ function openModal(type, proName = "") {
       </div>
       <div class="quick-actions">
         <button class="btn-register" onclick="copyShareLink()">Copiar enlace</button>
-        <button class="btn-register" style="background:var(--amber)" onclick="contactPro('${pro.name.replace(/'/g, "\\'")}')">Contactar</button>
+        <button class="btn-register" style="background:var(--amber)" onclick="openWhatsAppPro('${String(pro.id || pro.name).replace(/'/g, "\\'")}')">WhatsApp</button>
       </div>`;
   } else if (type === "report") {
     const pro = getProByRef(proName);
