@@ -336,7 +336,7 @@
   </div>
   <div style="display:flex;gap:10px">
     <button class="btn btn-outline" onclick="openModal('login')">Iniciar sesión</button>
-    <button class="btn btn-primary" onclick="openModal('register')">Registro gratis</button>
+    <button class="btn btn-primary" onclick="openModal('register')">Publicar como profesional</button>
   </div>
 </nav>
 
@@ -561,9 +561,9 @@
 <section class="register-section" id="register">
   <div class="register-inner">
     <div class="register-info">
-      <div class="hero-badge" style="background:rgba(255,255,255,.5)">✦ Registro 100% gratuito</div>
+      <div class="hero-badge" style="background:rgba(255,255,255,.5)">✦ Clientes sin registro</div>
       <h2 style="margin-top:12px">¿Eres profesional? Únete gratis</h2>
-      <p style="color:var(--slate-soft);font-size:.95rem;line-height:1.65;margin-bottom:8px">Llega a miles de clientes en tu ciudad sin pagar nada. Tu perfil, tus condiciones, sin comisiones.</p>
+      <p style="color:var(--slate-soft);font-size:.95rem;line-height:1.65;margin-bottom:8px">Los clientes contactan sin crear cuenta. Tú publicas tu perfil profesional y recibes solicitudes directas.</p>
       <ul class="register-perks">
         <li><div class="perk-check">✓</div>Perfil profesional con fotos y valoraciones</li>
         <li><div class="perk-check">✓</div>Aparece en búsquedas por ciudad y categoría</li>
@@ -573,11 +573,10 @@
       </ul>
     </div>
     <div class="register-form-box">
-      <h3>Crea tu cuenta</h3>
-      <p class="form-sub">Como profesional o como cliente — es gratis</p>
+      <h3>Publica tu perfil</h3>
+      <p class="form-sub">Clientes sin registro. Este formulario es solo para profesionales.</p>
       <div class="modal-tabs">
         <div class="modal-tab active" onclick="switchTab(this,'pro')">Soy profesional</div>
-        <div class="modal-tab" onclick="switchTab(this,'client')">Soy cliente</div>
       </div>
       <div class="form-group"><label>Nombre completo</label><input type="text" placeholder="Ej: Carlos Molina"></div>
       <div class="form-group"><label>Email</label><input type="email" placeholder="tu@email.com"></div>
@@ -592,7 +591,7 @@
         <input type="checkbox" id="terms">
         <label for="terms">Acepto los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a></label>
       </div>
-      <button class="btn-register" onclick="handleRegister()">Crear cuenta gratis →</button>
+      <button class="btn-register" onclick="handleRegister()">Publicar mi perfil →</button>
     </div>
   </div>
 </section>
@@ -636,7 +635,7 @@
       <div class="form-group"><label>Email</label><input type="email" placeholder="tu@email.com"></div>
       <div class="form-group"><label>Contraseña</label><input type="password" placeholder="Tu contraseña"></div>
       <button class="btn-register" style="margin-top:8px" onclick="handleLogin()">Entrar →</button>
-      <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--muted)">¿Sin cuenta? <a href="#" onclick="openModal('register')" style="color:var(--amber-dark);font-weight:600">Regístrate gratis</a></p>
+      <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--muted)">Los clientes no necesitan cuenta: pueden contactar directamente desde cada tarjeta.</p>
     </div>
   </div>
 </div>
@@ -947,7 +946,7 @@ function openModal(type, proName = "") {
       <div class="form-group"><label>Email</label><input id="loginEmail" type="email" placeholder="tu@email.com"></div>
       <div class="form-group"><label>Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña"></div>
       <button class="btn-register" style="margin-top:8px" onclick="handleLogin()">Entrar →</button>
-      <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--muted)">¿Sin cuenta? <a href="#" onclick="openModal('register')" style="color:var(--amber-dark);font-weight:600">Regístrate gratis</a></p>`;
+      <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--muted)">Los clientes no necesitan cuenta: pueden contactar directamente desde cada tarjeta.</p>`;
   } else if (type === "contact") {
     const pro = professionals.find((p) => p.name === proName);
     title.textContent = "Contactar profesional";
@@ -995,13 +994,9 @@ function openModal(type, proName = "") {
         <button class="btn-register" style="background:var(--amber)" onclick="contactPro('${pro.name.replace(/'/g, "\\'")}')">Contactar</button>
       </div>`;
   } else {
-    title.textContent = "Crear cuenta gratis";
-    sub.textContent = "Elige si quieres contratar o recibir trabajos.";
+    title.textContent = "Alta de profesional";
+    sub.textContent = "Los clientes no se registran. Este alta es para recibir trabajos.";
     body.innerHTML = `
-      <div class="modal-tabs">
-        <div class="modal-tab active" onclick="switchTab(this,'pro')">Profesional</div>
-        <div class="modal-tab" onclick="switchTab(this,'client')">Cliente</div>
-      </div>
       <input id="regType" type="hidden" value="professional">
       <div class="form-group"><label>Nombre</label><input id="regName" type="text" placeholder="Tu nombre completo"></div>
       <div class="form-group"><label>Email</label><input id="regEmail" type="email" placeholder="tu@email.com"></div>
@@ -1009,7 +1004,7 @@ function openModal(type, proName = "") {
       <div class="form-group"><label>Ciudad</label><input id="regCity" type="text" list="cityList" placeholder="Madrid"></div>
       <datalist id="cityList"></datalist>
       <div class="form-group"><label>Contraseña</label><input id="regPass" type="password" placeholder="Mínimo 8 caracteres"></div>
-      <button class="btn-register" style="margin-top:8px" onclick="handleRegister()">Registrarme gratis →</button>`;
+      <button class="btn-register" style="margin-top:8px" onclick="handleRegister()">Publicar mi perfil →</button>`;
   }
 
   modal.classList.add("open");
@@ -1060,7 +1055,7 @@ function handleRegister() {
 
   if (!document.getElementById("regName")) {
     closeModal();
-    return showToast("🎉 Cuenta creada. Ya puedes recibir solicitudes.");
+    return showToast("🎉 Perfil profesional creado. Ya puedes recibir solicitudes.");
   }
 
   fetch("/api/public/register", {
@@ -1081,7 +1076,7 @@ function handleRegister() {
     })
     .then(() => {
       closeModal();
-      showToast("🎉 Cuenta registrada y guardada en el后台.");
+      showToast("🎉 Perfil profesional registrado y guardado en el后台.");
     })
     .catch(() => showToast("No pudimos registrar esa cuenta. Revisa si el email ya existe."));
 }
