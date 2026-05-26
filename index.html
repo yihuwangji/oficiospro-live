@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OficiosPro — Encuentra tu profesional</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber: #F59E0B;
+    --amber-dark: #D97706;
+    --amber-light: #FEF3C7;
+    --slate: #0F172A;
+    --slate-mid: #1E293B;
+    --slate-soft: #334155;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --white: #FFFFFF;
+    --cream: #FFFBF5;
+    --success: #10B981;
+    --danger: #EF4444;
+    --radius: 14px;
+    --shadow: 0 4px 24px rgba(15,23,42,0.10);
+    --shadow-hover: 0 12px 40px rgba(15,23,42,0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--slate); min-height: 100vh; }
+  a { text-decoration: none; color: inherit; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,251,245,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%; height: 68px;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--amber); }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-links a { font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color .2s; }
+  .nav-links a:hover { color: var(--slate); }
+  .btn { display: inline-flex; align-items: center; gap: 7px; border-radius: 100px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all .2s; border: none; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--slate); padding: 9px 20px; font-size: 0.9rem; }
+  .btn-outline:hover { border-color: var(--slate); }
+  .btn-primary { background: var(--amber); color: var(--white); padding: 10px 22px; font-size: 0.9rem; box-shadow: 0 2px 12px rgba(245,158,11,.35); }
+  .btn-primary:hover { background: var(--amber-dark); box-shadow: 0 4px 20px rgba(245,158,11,.45); transform: translateY(-1px); }
+  .btn-lg { padding: 14px 32px; font-size: 1rem; border-radius: 100px; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 90px 5% 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+    max-width: 1300px; margin: 0 auto;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--amber-light); color: var(--amber-dark);
+    font-size: 0.8rem; font-weight: 600; padding: 6px 14px; border-radius: 100px;
+    margin-bottom: 20px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .hero-badge::before { content: '●'; font-size: 0.5rem; }
+  h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2.2rem, 4vw, 3.6rem); line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; }
+  h1 em { color: var(--amber); font-style: normal; }
+  .hero p { font-size: 1.05rem; color: var(--muted); line-height: 1.65; max-width: 440px; margin-bottom: 36px; }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .hero-stats { display: flex; gap: 32px; margin-top: 48px; }
+  .stat { display: flex; flex-direction: column; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--slate); }
+  .stat-label { font-size: 0.82rem; color: var(--muted); margin-top: 2px; }
+  .hero-visual {
+    position: relative; height: 440px; border-radius: 24px; overflow: hidden;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 50%, #F59E0B22 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-cards-stack { position: relative; width: 320px; }
+  .pro-card {
+    background: var(--white); border-radius: var(--radius); padding: 18px;
+    box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px;
+    transition: transform .3s;
+  }
+  .pro-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .pro-card + .pro-card { margin-top: 14px; }
+  .pro-avatar {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--amber-light);
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+  }
+  .pro-info { flex: 1; min-width: 0; }
+  .pro-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+  .pro-role { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .pro-stars { color: var(--amber); font-size: 0.75rem; margin-top: 4px; }
+  .pro-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--amber-dark); white-space: nowrap; }
+  .available-badge { font-size: 0.7rem; color: var(--success); font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+  .available-badge::before { content: '●'; font-size: 0.5rem; }
+
+  /* ── SEARCH SECTION ── */
+  .search-section { background: var(--white); border-bottom: 1px solid var(--border); padding: 32px 5%; }
+  .search-inner { max-width: 900px; margin: 0 auto; }
+  .search-box {
+    display: flex; gap: 0; border: 2px solid var(--border); border-radius: 100px;
+    overflow: hidden; box-shadow: var(--shadow);
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search-box:focus-within { border-color: var(--amber); box-shadow: 0 0 0 4px rgba(245,158,11,.12); }
+  .search-field { display: flex; align-items: center; gap: 10px; flex: 1; padding: 14px 22px; border-right: 1px solid var(--border); }
+  .search-field:last-of-type { border-right: none; }
+  .search-field select, .search-field input {
+    border: none; outline: none; background: transparent; font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; width: 100%; color: var(--slate);
+  }
+  .search-field-icon { font-size: 1.1rem; flex-shrink: 0; }
+  .search-box .btn-primary { border-radius: 100px; margin: 6px; padding: 12px 28px; flex-shrink: 0; }
+  .search-tags { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .tag {
+    padding: 7px 16px; border-radius: 100px; border: 1.5px solid var(--border);
+    font-size: 0.83rem; font-weight: 500; cursor: pointer; transition: all .2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tag:hover, .tag.active { background: var(--slate); color: var(--white); border-color: var(--slate); }
+
+  /* ── SECTIONS COMMON ── */
+  section { padding: 72px 5%; }
+  .section-header { text-align: center; margin-bottom: 52px; }
+  h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: -0.02em; }
+  .section-sub { color: var(--muted); font-size: 0.95rem; margin-top: 10px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+  .inner { max-width: 1200px; margin: 0 auto; }
+
+  /* ── CATEGORIES ── */
+  .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+  .cat-card {
+    background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 24px 16px; text-align: center; cursor: pointer;
+    transition: all .25s; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .cat-card:hover { border-color: var(--amber); box-shadow: 0 8px 28px rgba(245,158,11,.15); transform: translateY(-3px); }
+  .cat-icon { font-size: 2.2rem; line-height: 1; }
+  .cat-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem; }
+  .cat-count { font-size: 0.75rem; color: var(--muted); }
+
+  /* ── PROFESSIONALS GRID ── */
+  .pros-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  .prof-card {
+    background: var(--white); border: 1.5px solid var(--border); border-radius: 18px;
+    overflow: hidden; transition: all .25s; cursor: pointer;
+  }
+  .prof-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-4px); border-color: transparent; }
+  .prof-card-header { background: linear-gradient(135deg, #FEF3C7, #FDE68A); padding: 28px 24px 20px; position: relative; }
+  .prof-avatar-lg {
+    width: 70px; height: 70px; border-radius: 50%; background: var(--white);
+    display: flex; align-items: center; justify-content: center; font-size: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  }
+  .prof-badge {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--success); color: var(--white); font-size: 0.72rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 100px;
+  }
+  .prof-card-body { padding: 18px 24px 22px; }
+  .prof-card-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 2px; }
+  .prof-card-role { font-size: 0.82rem; color: var(--amber-dark); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .prof-card-location { font-size: 0.83rem; color: var(--muted); display: flex; align-items: center; gap: 5px; margin-bottom: 12px; }
+  .stars-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+  .stars { color: var(--amber); font-size: 0.9rem; letter-spacing: 1px; }
+  .rating-num { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; }
+  .review-count { font-size: 0.78rem; color: var(--muted); }
+  .prof-card-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.55; margin-bottom: 16px; }
+  .prof-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border); }
+  .prof-price { font-family: 'Syne', sans-serif; }
+  .prof-price-amount { font-size: 1.2rem; font-weight: 800; color: var(--slate); }
+  .prof-price-unit { font-size: 0.78rem; color: var(--muted); }
+  .btn-contact { background: var(--slate); color: var(--white); padding: 9px 20px; border-radius: 100px; font-size: 0.85rem; font-weight: 500; border: none; cursor: pointer; transition: all .2s; }
+  .btn-contact:hover { background: var(--amber); }
+  .results-toolbar {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    margin: -20px 0 24px; padding: 14px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); background: rgba(255,255,255,.72);
+  }
+  .results-toolbar strong { font-family: 'Syne', sans-serif; font-size: 1rem; }
+  .results-toolbar span { color: var(--muted); font-size: .84rem; margin-left: 6px; }
+  .toolbar-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .toolbar-actions select {
+    border: 1.5px solid var(--border); border-radius: 999px; padding: 9px 14px;
+    background: var(--white); color: var(--slate); font-family: 'DM Sans', sans-serif;
+  }
+  .filter-toggle {
+    display: inline-flex; align-items: center; gap: 8px; font-size: .86rem;
+    color: var(--slate-soft); cursor: pointer; white-space: nowrap;
+  }
+  .filter-toggle input { accent-color: var(--amber); }
+  .prof-meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+  .prof-chip { font-size: .72rem; color: var(--slate-soft); background: #F8FAFC; border: 1px solid var(--border); border-radius: 999px; padding: 4px 9px; }
+  .empty-state { text-align: center; color: var(--muted); padding: 44px 20px; grid-column: 1/-1; background: var(--white); border: 1.5px dashed var(--border); border-radius: var(--radius); }
+
+  /* ── CITIES ── */
+  .cities-section { background: var(--slate); color: var(--white); }
+  .cities-section h2 { color: var(--white); }
+  .cities-section .section-sub { color: #94A3B8; }
+  .cities-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .city-card {
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+    border-radius: var(--radius); padding: 20px 16px; cursor: pointer;
+    transition: all .25s; display: flex; flex-direction: column; gap: 4px;
+  }
+  .city-card:hover { background: var(--amber); border-color: var(--amber); color: var(--slate); }
+  .city-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; }
+  .city-count { font-size: 0.78rem; opacity: 0.65; }
+
+  /* ── HOW IT WORKS ── */
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
+  .step-card { text-align: center; padding: 16px; }
+  .step-num {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--amber); color: var(--white);
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 18px;
+  }
+  .step-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 10px; }
+  .step-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── REVIEWS ── */
+  .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .review-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .reviewer-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--amber-light); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .reviewer-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; }
+  .reviewer-city { font-size: 0.78rem; color: var(--muted); }
+  .review-stars { color: var(--amber); font-size: 0.85rem; margin-bottom: 10px; }
+  .review-text { font-size: 0.88rem; color: var(--muted); line-height: 1.6; font-style: italic; }
+  .review-service { display: inline-block; background: var(--amber-light); color: var(--amber-dark); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 100px; margin-top: 12px; }
+
+  /* ── REGISTER SECTION ── */
+  .register-section { background: linear-gradient(135deg, var(--amber-light) 0%, #FDE68A 100%); }
+  .register-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+  .register-form-box { background: var(--white); border-radius: 20px; padding: 36px; box-shadow: var(--shadow-hover); }
+  .register-form-box h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; margin-bottom: 6px; }
+  .form-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 7px; color: var(--slate-soft); }
+  .form-group input, .form-group select {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--slate); outline: none;
+    transition: border-color .2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--amber); }
+  .form-check { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0; }
+  .form-check input { width: auto; margin-top: 2px; }
+  .form-check label { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .form-check a { color: var(--amber-dark); font-weight: 500; }
+  .btn-register { width: 100%; padding: 14px; font-size: 1rem; border-radius: 12px; background: var(--slate); color: var(--white); border: none; font-family: 'Syne', sans-serif; font-weight: 700; cursor: pointer; transition: all .2s; }
+  .btn-register:hover { background: var(--amber); transform: translateY(-1px); }
+  .register-info h2 { font-family: 'Syne', sans-serif; font-size: 2rem; margin-bottom: 16px; }
+  .register-perks { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+  .register-perks li { display: flex; align-items: flex-start; gap: 12px; font-size: 0.92rem; line-height: 1.5; }
+  .perk-check { width: 24px; height: 24px; border-radius: 50%; background: var(--success); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── FOOTER ── */
+  footer { background: var(--slate); color: #94A3B8; padding: 56px 5% 32px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto 40px; }
+  .footer-brand .logo { color: var(--white); display: block; margin-bottom: 12px; }
+  .footer-desc { font-size: 0.85rem; line-height: 1.65; }
+  .footer-col h4 { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--white); font-size: 0.9rem; margin-bottom: 14px; }
+  .footer-col a { display: block; font-size: 0.84rem; margin-bottom: 9px; color: #94A3B8; transition: color .2s; }
+  .footer-col a:hover { color: var(--amber); }
+  .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.1); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 12px; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 20px; padding: 40px; max-width: 540px; width: 90%; max-height: 88vh; overflow: auto; position: relative; animation: modalIn .3s ease; }
+  @keyframes modalIn { from { transform: scale(.95) translateY(10px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: var(--border); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+  .modal-close:hover { background: var(--slate); color: white; }
+  .modal h3 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; margin-bottom: 6px; }
+  .contact-card { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin: 20px 0; }
+  .contact-avatar { width: 58px; height: 58px; border-radius: 50%; background: var(--amber-light); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+  .contact-name { font-family: 'Syne', sans-serif; font-weight: 800; }
+  .contact-details { color: var(--muted); font-size: .84rem; margin-top: 3px; }
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .quick-actions .btn-register { font-size: .9rem; padding: 12px; }
+  .modal-tabs { display: flex; gap: 0; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .modal-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+  .modal-tab.active { background: var(--slate); color: white; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+  .animate { animation: fadeUp .6s ease forwards; opacity: 0; }
+  .animate-d1 { animation-delay: .1s; }
+  .animate-d2 { animation-delay: .2s; }
+  .animate-d3 { animation-delay: .3s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { height: 300px; }
+    .register-inner { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .search-field:nth-child(2) { display: none; }
+    .results-toolbar { align-items: flex-start; flex-direction: column; }
+  }
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .footer-grid { grid-template-columns: 1fr; }
+    .search-box { flex-direction: column; border-radius: 16px; }
+    .search-field { border-right: none; border-bottom: 1px solid var(--border); }
+    .search-box .btn-primary { margin: 8px; border-radius: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Oficios<span>Pro</span></div>
+  <div class="nav-links">
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#categorias">Categorías</a>
+    <a href="#ciudades">Ciudades</a>
+    <a href="#profesionales">Profesionales</a>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-outline" onclick="openModal('login')">Iniciar sesión</button>
+    <button class="btn btn-primary" onclick="openModal('register')">Registro gratis</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero inner" style="max-width:1300px;padding-top:80px;padding-bottom:60px">
+  <div class="animate">
+    <div class="hero-badge">✦ 100% Gratis para profesionales</div>
+    <h1 id="heroTitle">Encuentra el <em>profesional</em> que necesitas cerca de ti</h1>
+    <p id="heroSubtitle">Conectamos a particulares con fontaneros, electricistas, pintores, cerrajeros, jardineros y más en toda España. Rápido, seguro y con valoraciones reales.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" onclick="document.getElementById('search-section').scrollIntoView({behavior:'smooth'})">🔍 Buscar profesional</button>
+      <button class="btn btn-outline btn-lg" onclick="openModal('register')">Soy profesional</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">4.800+</span><span class="stat-label">Profesionales</span></div>
+      <div class="stat"><span class="stat-num">52.000+</span><span class="stat-label">Trabajos realizados</span></div>
+      <div class="stat"><span class="stat-num">4.8 ★</span><span class="stat-label">Valoración media</span></div>
+    </div>
+  </div>
+  <div class="hero-visual animate animate-d2">
+    <div class="hero-cards-stack">
+      <div class="pro-card">
+        <div class="pro-avatar">🔧</div>
+        <div class="pro-info">
+          <div class="pro-name">Carlos Molina</div>
+          <div class="pro-role">Fontanero · Madrid</div>
+          <div class="pro-stars">★★★★★ 4.9</div>
+          <div class="available-badge">Disponible hoy</div>
+        </div>
+        <div class="pro-price">30€/h</div>
+      </div>
+      <div class="pro-card">
+        <div class="pro-avatar">🎨</div>
+        <div class="pro-info">
+          <div class="pro-name">Ana Rosales</div>
+          <div class="pro-role">Pintora · Valencia</div>
+          <div class="pro-stars">★★★★★ 4.8</div>
+          <div class="available-badge">Disponible hoy</div>
+        </div>
+        <div class="pro-price">25€/h</div>
+      </div>
+      <div class="pro-card">
+        <div class="pro-avatar">🌿</div>
+        <div class="pro-info">
+          <div class="pro-name">Javier Ortiz</div>
+          <div class="pro-role">Jardinero · Barcelona</div>
+          <div class="pro-stars">★★★★☆ 4.6</div>
+          <div class="available-badge">Disponible hoy</div>
+        </div>
+        <div class="pro-price">22€/h</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section" id="search-section">
+  <div class="search-inner">
+    <div class="search-box">
+      <div class="search-field">
+        <span class="search-field-icon">🔍</span>
+        <input type="text" placeholder="¿Qué servicio necesitas?" id="searchQuery">
+      </div>
+      <div class="search-field">
+        <span class="search-field-icon">📍</span>
+        <select id="searchCity">
+          <option value="">Todas las ciudades</option>
+          <option>Madrid</option><option>Barcelona</option><option>Valencia</option>
+          <option>Sevilla</option><option>Zaragoza</option><option>Málaga</option>
+          <option>Murcia</option><option>Palma</option><option>Las Palmas</option>
+          <option>Bilbao</option><option>Alicante</option><option>Córdoba</option>
+          <option>Valladolid</option><option>Vigo</option><option>Gijón</option>
+          <option>Granada</option><option>Elche</option><option>Oviedo</option>
+          <option>Badalona</option><option>Terrassa</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
+    </div>
+    <div class="search-tags">
+      <span class="tag active" onclick="filterTag(this,'')">Todo</span>
+      <span class="tag" onclick="filterTag(this,'Albañil')">🧱 Albañilería</span>
+      <span class="tag" onclick="filterTag(this,'Cerrajera')">🔐 Cerrajería</span>
+      <span class="tag" onclick="filterTag(this,'Pintora')">🎨 Pintura</span>
+      <span class="tag" onclick="filterTag(this,'Jardinero')">🌿 Jardinería</span>
+      <span class="tag" onclick="filterTag(this,'Fontanero')">🔧 Fontanería</span>
+      <span class="tag" onclick="filterTag(this,'Electricista')">⚡ Electricidad</span>
+      <span class="tag" onclick="filterTag(this,'Carpintero')">🪵 Carpintería</span>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section style="background:var(--white)" id="categorias">
+  <div class="inner">
+    <div class="section-header">
+      <h2>Todos los servicios</h2>
+      <p class="section-sub">Profesionales verificados en todas las categorías de oficios del hogar</p>
+    </div>
+    <div class="categories-grid">
+      <div class="cat-card" onclick="selectCategory('Albañil')">
+        <div class="cat-icon">🧱</div>
+        <div class="cat-name">Albañilería</div>
+        <div class="cat-count">312 profesionales</div>
+      </div>
+      <div class="cat-card" onclick="selectCategory('Cerrajera')"><div class="cat-icon">🔐</div><div class="cat-name">Cerrajería</div><div class="cat-count">198 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Pintora')"><div class="cat-icon">🎨</div><div class="cat-name">Pintura</div><div class="cat-count">445 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Jardinero')"><div class="cat-icon">🌿</div><div class="cat-name">Jardinería</div><div class="cat-count">287 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Fontanero')"><div class="cat-icon">🔧</div><div class="cat-name">Fontanería</div><div class="cat-count">521 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Electricista')"><div class="cat-icon">⚡</div><div class="cat-name">Electricidad</div><div class="cat-count">489 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Carpintero')"><div class="cat-icon">🪵</div><div class="cat-name">Carpintería</div><div class="cat-count">176 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Climatización')"><div class="cat-icon">❄️</div><div class="cat-name">Climatización</div><div class="cat-count">234 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Cristalero')"><div class="cat-icon">🪟</div><div class="cat-name">Cristalería</div><div class="cat-count">142 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Limpieza')"><div class="cat-icon">🧹</div><div class="cat-name">Limpieza</div><div class="cat-count">608 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Mudanzas')"><div class="cat-icon">🛋️</div><div class="cat-name">Mudanzas</div><div class="cat-count">219 profesionales</div></div>
+      <div class="cat-card" onclick="selectCategory('Reformas')"><div class="cat-icon">🔩</div><div class="cat-name">Reformas</div><div class="cat-count">394 profesionales</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROFESSIONALS -->
+<section id="profesionales">
+  <div class="inner">
+    <div class="section-header">
+      <h2>Profesionales destacados</h2>
+      <p class="section-sub">Los mejor valorados por nuestros clientes esta semana</p>
+    </div>
+    <div class="results-toolbar">
+      <div>
+        <strong id="resultsCount">0 profesionales</strong>
+        <span id="resultsHint">listos para contactar</span>
+      </div>
+      <div class="toolbar-actions">
+        <label class="filter-toggle"><input type="checkbox" id="availableOnly" onchange="applyFilters()"> Solo disponibles</label>
+        <select id="sortBy" onchange="applyFilters()" aria-label="Ordenar profesionales">
+          <option value="recommended">Recomendados</option>
+          <option value="rating">Mejor valoración</option>
+          <option value="price">Precio más bajo</option>
+          <option value="reviews">Más opiniones</option>
+        </select>
+      </div>
+    </div>
+    <div class="pros-grid" id="prosGrid">
+      <!-- Cards generadas por JS -->
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <button class="btn btn-outline btn-lg" onclick="resetFilters()">Ver todos los profesionales →</button>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="background:var(--white)" id="como-funciona">
+  <div class="inner">
+    <div class="section-header">
+      <h2>¿Cómo funciona?</h2>
+      <p class="section-sub">Encuentra, contacta y contrata en minutos — sin complicaciones</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">1</div><div class="step-title">Busca el servicio</div><div class="step-desc">Indica qué necesitas y tu ciudad. Filtramos al instante los profesionales disponibles.</div></div>
+      <div class="step-card"><div class="step-num">2</div><div class="step-title">Compara perfiles</div><div class="step-desc">Lee valoraciones reales de otros clientes, compara precios y experiencia.</div></div>
+      <div class="step-card"><div class="step-num">3</div><div class="step-title">Contacta gratis</div><div class="step-desc">Escríbele directamente al profesional. Sin intermediarios, sin comisiones ocultas.</div></div>
+      <div class="step-card"><div class="step-num">4</div><div class="step-title">Valora el trabajo</div><div class="step-desc">Deja tu opinión y ayuda a otros usuarios a elegir mejor. La comunidad te lo agradecerá.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CITIES -->
+<section class="cities-section" id="ciudades">
+  <div class="inner">
+    <div class="section-header">
+      <h2>Busca por ciudad</h2>
+      <p class="section-sub">Profesionales disponibles en toda España</p>
+    </div>
+    <div class="cities-grid">
+      <div class="city-card" onclick="setCity('Madrid')"><div class="city-name">🏛️ Madrid</div><div class="city-count">1.240 pros</div></div>
+      <div class="city-card" onclick="setCity('Barcelona')"><div class="city-name">🌊 Barcelona</div><div class="city-count">980 pros</div></div>
+      <div class="city-card" onclick="setCity('Valencia')"><div class="city-name">🍊 Valencia</div><div class="city-count">620 pros</div></div>
+      <div class="city-card" onclick="setCity('Sevilla')"><div class="city-name">💃 Sevilla</div><div class="city-count">540 pros</div></div>
+      <div class="city-card" onclick="setCity('Zaragoza')"><div class="city-name">🦁 Zaragoza</div><div class="city-count">310 pros</div></div>
+      <div class="city-card" onclick="setCity('Málaga')"><div class="city-name">☀️ Málaga</div><div class="city-count">420 pros</div></div>
+      <div class="city-card" onclick="setCity('Bilbao')"><div class="city-name">🌉 Bilbao</div><div class="city-count">280 pros</div></div>
+      <div class="city-card" onclick="setCity('Alicante')"><div class="city-name">⛵ Alicante</div><div class="city-count">360 pros</div></div>
+      <div class="city-card" onclick="setCity('Granada')"><div class="city-name">🏔️ Granada</div><div class="city-count">240 pros</div></div>
+      <div class="city-card" onclick="setCity('Murcia')"><div class="city-name">🌹 Murcia</div><div class="city-count">290 pros</div></div>
+      <div class="city-card" onclick="setCity('Palma')"><div class="city-name">🏝️ Palma</div><div class="city-count">210 pros</div></div>
+      <div class="city-card" onclick="setCity('Valladolid')"><div class="city-name">🏰 Valladolid</div><div class="city-count">180 pros</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section>
+  <div class="inner">
+    <div class="section-header">
+      <h2>Lo que dicen nuestros clientes</h2>
+      <p class="section-sub">Más de 52.000 valoraciones verificadas de trabajos reales</p>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-header"><div class="reviewer-avatar">👩</div><div><div class="reviewer-name">Lucía M.</div><div class="reviewer-city">📍 Madrid</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Contrató al fontanero en 10 minutos. Llegó puntual, resolvió la avería rápido y el precio fue exactamente lo pactado. Totalmente recomendable."</div>
+        <span class="review-service">🔧 Fontanería</span>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div class="reviewer-avatar">👨</div><div><div class="reviewer-name">Marcos T.</div><div class="reviewer-city">📍 Barcelona</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"El jardinero transformó por completo mi terraza. Profesional, creativo y muy buen precio. Ya lo he recomendado a tres vecinos."</div>
+        <span class="review-service">🌿 Jardinería</span>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div class="reviewer-avatar">👩</div><div><div class="reviewer-name">Sara G.</div><div class="reviewer-city">📍 Valencia</div></div></div>
+        <div class="review-stars">★★★★☆</div>
+        <div class="review-text">"Me quedé sin llaves a las 11 de la noche. En menos de 20 minutos llegó el cerrajero. Un servicio excelente, lo usaré siempre."</div>
+        <span class="review-service">🔐 Cerrajería</span>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div class="reviewer-avatar">👨</div><div><div class="reviewer-name">Pablo R.</div><div class="reviewer-city">📍 Sevilla</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Pintaron todo el piso en dos días. El acabado es perfecto, el trato impecable. Muy satisfecho con OficiosPro."</div>
+        <span class="review-service">🎨 Pintura</span>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div class="reviewer-avatar">👩</div><div><div class="reviewer-name">Carmen V.</div><div class="reviewer-city">📍 Málaga</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"El albañil hizo los arreglos de mi patio en un día. Limpio, eficiente y muy amable. Repetiré sin dudarlo."</div>
+        <span class="review-service">🧱 Albañilería</span>
+      </div>
+      <div class="review-card">
+        <div class="review-header"><div class="reviewer-avatar">👨</div><div><div class="reviewer-name">Ángel F.</div><div class="reviewer-city">📍 Bilbao</div></div></div>
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Increíble plataforma. Encontré al electricista en minutos y el presupuesto fue muy competitivo. Todo perfecto."</div>
+        <span class="review-service">⚡ Electricidad</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGISTER -->
+<section class="register-section" id="register">
+  <div class="register-inner">
+    <div class="register-info">
+      <div class="hero-badge" style="background:rgba(255,255,255,.5)">✦ Registro 100% gratuito</div>
+      <h2 style="margin-top:12px">¿Eres profesional? Únete gratis</h2>
+      <p style="color:var(--slate-soft);font-size:.95rem;line-height:1.65;margin-bottom:8px">Llega a miles de clientes en tu ciudad sin pagar nada. Tu perfil, tus condiciones, sin comisiones.</p>
+      <ul class="register-perks">
+        <li><div class="perk-check">✓</div>Perfil profesional con fotos y valoraciones</li>
+        <li><div class="perk-check">✓</div>Aparece en búsquedas por ciudad y categoría</li>
+        <li><div class="perk-check">✓</div>Recibe mensajes directos de clientes</li>
+        <li><div class="perk-check">✓</div>Sin comisiones ni cuotas mensuales</li>
+        <li><div class="perk-check">✓</div>Estadísticas de visitas a tu perfil</li>
+      </ul>
+    </div>
+    <div class="register-form-box">
+      <h3>Crea tu cuenta</h3>
+      <p class="form-sub">Como profesional o como cliente — es gratis</p>
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab(this,'pro')">Soy profesional</div>
+        <div class="modal-tab" onclick="switchTab(this,'client')">Soy cliente</div>
+      </div>
+      <div class="form-group"><label>Nombre completo</label><input type="text" placeholder="Ej: Carlos Molina"></div>
+      <div class="form-group"><label>Email</label><input type="email" placeholder="tu@email.com"></div>
+      <div class="form-group" id="profField"><label>Especialidad</label>
+        <select><option>Albañilería</option><option>Cerrajería</option><option>Pintura</option><option>Jardinería</option><option>Fontanería</option><option>Electricidad</option><option>Carpintería</option><option>Climatización</option><option>Reformas generales</option></select>
+      </div>
+      <div class="form-group"><label>Ciudad</label>
+        <select><option>Madrid</option><option>Barcelona</option><option>Valencia</option><option>Sevilla</option><option>Zaragoza</option><option>Málaga</option><option>Bilbao</option><option>Alicante</option><option>Granada</option><option>Murcia</option></select>
+      </div>
+      <div class="form-group"><label>Contraseña</label><input type="password" placeholder="Mínimo 8 caracteres"></div>
+      <div class="form-check">
+        <input type="checkbox" id="terms">
+        <label for="terms">Acepto los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a></label>
+      </div>
+      <button class="btn-register" onclick="handleRegister()">Crear cuenta gratis →</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo">Oficios<span>Pro</span></div>
+      <p class="footer-desc">La plataforma española para encontrar y contratar profesionales de oficios del hogar. Gratis, seguro y con valoraciones verificadas.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Servicios</h4>
+      <a href="#">Fontanería</a><a href="#">Electricidad</a><a href="#">Pintura</a>
+      <a href="#">Albañilería</a><a href="#">Jardinería</a><a href="#">Cerrajería</a>
+    </div>
+    <div class="footer-col">
+      <h4>Ciudades</h4>
+      <a href="#">Madrid</a><a href="#">Barcelona</a><a href="#">Valencia</a>
+      <a href="#">Sevilla</a><a href="#">Málaga</a><a href="#">Bilbao</a>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <a href="#">Quiénes somos</a><a href="#">Prensa</a><a href="#">Blog</a>
+      <a href="#">Ayuda</a><a href="#">Privacidad</a><a href="#">Términos</a><a href="/admin.html">后台 Admin</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 OficiosPro. Hecho con ❤️ en España.</span>
+    <span>🇪🇸 Servicio en toda España</span>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="mainModal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modalTitle">Iniciar sesión</h3>
+    <p style="font-size:.85rem;color:var(--muted)" id="modalSub">Bienvenido de nuevo</p>
+    <div style="margin-top:20px" id="modalBody">
+      <div class="form-group"><label>Email</label><input type="email" placeholder="tu@email.com"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" placeholder="Tu contraseña"></div>
+      <button class="btn-register" style="margin-top:8px" onclick="handleLogin()">Entrar →</button>
+      <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--muted)">¿Sin cuenta? <a href="#" onclick="openModal('register')" style="color:var(--amber-dark);font-weight:600">Regístrate gratis</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:28px;right:28px;background:var(--slate);color:white;padding:14px 22px;border-radius:12px;font-size:.9rem;transform:translateY(100px);opacity:0;transition:all .35s;z-index:9999;max-width:320px;"></div>
+
+<script>
+let professionals = [
+  { name:"Carlos Molina", role:"Fontanero", city:"Madrid", rating:4.9, reviews:128, price:30, desc:"15 años de experiencia en instalaciones y reparaciones. Urgencias 24h.", emoji:"🔧", available:true, response:"8 min", jobs:312 },
+  { name:"Ana Rosales", role:"Pintora", city:"Valencia", rating:4.8, reviews:94, price:25, desc:"Especialista en pinturas decorativas, esmaltes y revestimientos. Presupuesto sin compromiso.", emoji:"🎨", available:true, response:"14 min", jobs:187 },
+  { name:"Javier Ortiz", role:"Jardinero", city:"Barcelona", rating:4.6, reviews:67, price:22, desc:"Diseño y mantenimiento de jardines, poda, césped y sistemas de riego.", emoji:"🌿", available:false, response:"1 h", jobs:122 },
+  { name:"María Pérez", role:"Cerrajera", city:"Sevilla", rating:4.9, reviews:201, price:35, desc:"Apertura de puertas, cambio de cerraduras y urgencias 24h en Sevilla.", emoji:"🔐", available:true, response:"5 min", jobs:441 },
+  { name:"Roberto Gil", role:"Albañil", city:"Madrid", rating:4.7, reviews:83, price:28, desc:"Reformas integrales, alicatado, solado, tabiques y obra menor.", emoji:"🧱", available:true, response:"22 min", jobs:156 },
+  { name:"Laura Sanz", role:"Electricista", city:"Bilbao", rating:4.8, reviews:112, price:32, desc:"Instalaciones eléctricas, cuadros, averías y mantenimiento doméstico.", emoji:"⚡", available:false, response:"45 min", jobs:238 },
+  { name:"Nuria Campos", role:"Carpintero", city:"Granada", rating:4.7, reviews:58, price:29, desc:"Muebles a medida, puertas, tarimas, armarios y reparaciones de madera.", emoji:"🪵", available:true, response:"18 min", jobs:104 },
+  { name:"Sergio Vidal", role:"Climatización", city:"Málaga", rating:4.9, reviews:76, price:34, desc:"Instalación y mantenimiento de aire acondicionado, aerotermia y bombas de calor.", emoji:"❄️", available:true, response:"11 min", jobs:169 },
+  { name:"Irene Costa", role:"Limpieza", city:"Alicante", rating:4.6, reviews:143, price:18, desc:"Limpieza de fin de obra, viviendas turísticas, oficinas y comunidades.", emoji:"🧹", available:true, response:"27 min", jobs:356 },
+  { name:"Héctor León", role:"Cristalero", city:"Zaragoza", rating:4.8, reviews:49, price:31, desc:"Cambio de cristales, mamparas, escaparates y cerramientos a medida.", emoji:"🪟", available:false, response:"2 h", jobs:91 },
+  { name:"Paula Rivas", role:"Mudanzas", city:"Murcia", rating:4.7, reviews:88, price:24, desc:"Mudanzas locales, embalaje, montaje de muebles y pequeños portes.", emoji:"🛋️", available:true, response:"16 min", jobs:204 },
+  { name:"Diego Martín", role:"Reformas", city:"Valladolid", rating:4.8, reviews:131, price:33, desc:"Reformas de baños, cocinas y viviendas completas con coordinación de gremios.", emoji:"🔩", available:true, response:"19 min", jobs:267 },
+];
+
+let currentFilter = "";
+
+function normalize(text) {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function sortProfessionals(list) {
+  const sortBy = document.getElementById("sortBy")?.value || "recommended";
+  return [...list].sort((a, b) => {
+    if (sortBy === "rating") return b.rating - a.rating;
+    if (sortBy === "price") return a.price - b.price;
+    if (sortBy === "reviews") return b.reviews - a.reviews;
+    return Number(b.available) - Number(a.available) || b.rating - a.rating || b.reviews - a.reviews;
+  });
+}
+
+function getFilteredPros() {
+  const q = normalize(document.getElementById("searchQuery").value.trim());
+  const city = document.getElementById("searchCity").value;
+  const availableOnly = document.getElementById("availableOnly")?.checked;
+  const filtered = professionals.filter((p) => {
+    const haystack = normalize(`${p.name} ${p.role} ${p.city} ${p.desc}`);
+    return (!q || haystack.includes(q)) &&
+      (!city || p.city === city) &&
+      (!currentFilter || p.role === currentFilter) &&
+      (!availableOnly || p.available);
+  });
+  return sortProfessionals(filtered);
+}
+
+function updateResultsMeta(count) {
+  const countEl = document.getElementById("resultsCount");
+  const hintEl = document.getElementById("resultsHint");
+  if (!countEl || !hintEl) return;
+  countEl.textContent = `${count} ${count === 1 ? "profesional" : "profesionales"}`;
+  const city = document.getElementById("searchCity").value;
+  const suffix = city ? `en ${city}` : "listos para contactar";
+  hintEl.textContent = currentFilter ? `${currentFilter} · ${suffix}` : suffix;
+}
+
+function renderPros(list) {
+  const grid = document.getElementById("prosGrid");
+  updateResultsMeta(list.length);
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state"><strong>No encontramos coincidencias.</strong><br>Prueba otra ciudad, quita el filtro de disponibilidad o busca un oficio parecido.</div>`;
+    return;
+  }
+  grid.innerHTML = list.map((p) => `
+    <article class="prof-card">
+      <div class="prof-card-header">
+        <div class="prof-avatar-lg">${p.emoji}</div>
+        ${p.available ? '<div class="prof-badge">Disponible</div>' : '<div class="prof-badge" style="background:var(--muted)">Agenda llena</div>'}
+      </div>
+      <div class="prof-card-body">
+        <div class="prof-card-name">${p.name}</div>
+        <div class="prof-card-role">${p.role}</div>
+        <div class="prof-card-location">📍 ${p.city}</div>
+        <div class="stars-row">
+          <div class="stars">${"★".repeat(Math.round(p.rating))}${"☆".repeat(5 - Math.round(p.rating))}</div>
+          <span class="rating-num">${p.rating.toFixed(1)}</span>
+          <span class="review-count">(${p.reviews} opiniones)</span>
+        </div>
+        <div class="prof-meta-row">
+          <span class="prof-chip">Respuesta ${p.response}</span>
+          <span class="prof-chip">${p.jobs} trabajos</span>
+          <span class="prof-chip">Verificado</span>
+        </div>
+        <div class="prof-card-desc">${p.desc}</div>
+        <div class="prof-card-footer">
+          <div class="prof-price"><span class="prof-price-amount">${p.price}€</span><span class="prof-price-unit">/hora</span></div>
+          <button class="btn-contact" onclick="contactPro('${p.name.replace(/'/g, "\\'")}')">Contactar</button>
+        </div>
+      </div>
+    </article>
+  `).join("");
+}
+
+function applyFilters({ scroll = false } = {}) {
+  renderPros(getFilteredPros());
+  if (scroll) document.getElementById("profesionales").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function doSearch() {
+  applyFilters({ scroll: true });
+}
+
+function filterTag(el, role) {
+  currentFilter = role;
+  document.querySelectorAll(".tag").forEach((tag) => tag.classList.remove("active"));
+  el.classList.add("active");
+  applyFilters({ scroll: true });
+}
+
+function selectCategory(role) {
+  currentFilter = role;
+  document.getElementById("searchQuery").value = "";
+  const tagByRole = {
+    "Albañil": "Albañilería",
+    "Cerrajera": "Cerrajería",
+    "Pintora": "Pintura",
+    "Jardinero": "Jardinería",
+    "Fontanero": "Fontanería",
+    "Electricista": "Electricidad",
+    "Carpintero": "Carpintería",
+  };
+  document.querySelectorAll(".tag").forEach((tag) => {
+    const label = tagByRole[role] || role;
+    tag.classList.toggle("active", tag.textContent.includes(label) || (!role && tag.textContent.includes("Todo")));
+  });
+  applyFilters({ scroll: true });
+}
+
+function resetFilters() {
+  currentFilter = "";
+  document.getElementById("searchQuery").value = "";
+  document.getElementById("searchCity").value = "";
+  document.getElementById("availableOnly").checked = false;
+  document.getElementById("sortBy").value = "recommended";
+  document.querySelectorAll(".tag").forEach((tag, index) => tag.classList.toggle("active", index === 0));
+  applyFilters({ scroll: true });
+}
+
+function setCity(city) {
+  document.getElementById("searchCity").value = city;
+  applyFilters({ scroll: true });
+}
+
+function openModal(type, proName = "") {
+  const modal = document.getElementById("mainModal");
+  const title = document.getElementById("modalTitle");
+  const sub = document.getElementById("modalSub");
+  const body = document.getElementById("modalBody");
+
+  if (type === "login") {
+    title.textContent = "Iniciar sesión";
+    sub.textContent = "Accede a tus mensajes, solicitudes y favoritos.";
+    body.innerHTML = `
+      <div class="form-group"><label>Email</label><input id="loginEmail" type="email" placeholder="tu@email.com"></div>
+      <div class="form-group"><label>Contraseña</label><input id="loginPass" type="password" placeholder="Tu contraseña"></div>
+      <button class="btn-register" style="margin-top:8px" onclick="handleLogin()">Entrar →</button>
+      <p style="text-align:center;margin-top:14px;font-size:.83rem;color:var(--muted)">¿Sin cuenta? <a href="#" onclick="openModal('register')" style="color:var(--amber-dark);font-weight:600">Regístrate gratis</a></p>`;
+  } else if (type === "contact") {
+    const pro = professionals.find((p) => p.name === proName);
+    title.textContent = "Contactar profesional";
+    sub.textContent = "Envía una solicitud clara y recibe respuesta rápida.";
+    body.innerHTML = `
+      <div class="contact-card">
+        <div class="contact-avatar">${pro.emoji}</div>
+        <div><div class="contact-name">${pro.name}</div><div class="contact-details">${pro.role} · ${pro.city} · ${pro.rating.toFixed(1)} ★ · desde ${pro.price}€/h</div></div>
+      </div>
+      <div class="form-group"><label>Tu nombre</label><input id="leadName" type="text" placeholder="Ej: Marta García"></div>
+      <div class="form-group"><label>Teléfono o email</label><input id="leadContact" type="text" placeholder="Ej: 600 123 456"></div>
+      <div class="form-group"><label>Trabajo que necesitas</label><input id="leadJob" type="text" placeholder="Describe brevemente el trabajo"></div>
+      <div class="quick-actions">
+        <button class="btn-register" onclick="sendLead('${pro.name.replace(/'/g, "\\'")}')">Enviar solicitud</button>
+        <button class="btn-register" style="background:var(--amber)" onclick="showToast('📞 Te mostramos el teléfono de ${pro.name}.')">Ver teléfono</button>
+      </div>`;
+  } else {
+    title.textContent = "Crear cuenta gratis";
+    sub.textContent = "Elige si quieres contratar o recibir trabajos.";
+    body.innerHTML = `
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab(this,'pro')">Profesional</div>
+        <div class="modal-tab" onclick="switchTab(this,'client')">Cliente</div>
+      </div>
+      <div class="form-group"><label>Nombre</label><input id="regName" type="text" placeholder="Tu nombre completo"></div>
+      <div class="form-group"><label>Email</label><input id="regEmail" type="email" placeholder="tu@email.com"></div>
+      <div class="form-group" id="profField"><label>Especialidad</label><select><option>Fontanería</option><option>Electricidad</option><option>Pintura</option><option>Reformas</option></select></div>
+      <div class="form-group"><label>Contraseña</label><input id="regPass" type="password" placeholder="Mínimo 8 caracteres"></div>
+      <button class="btn-register" style="margin-top:8px" onclick="handleRegister()">Registrarme gratis →</button>`;
+  }
+
+  modal.classList.add("open");
+  setTimeout(() => body.querySelector("input")?.focus(), 60);
+}
+
+function closeModal() {
+  document.getElementById("mainModal").classList.remove("open");
+}
+
+function closeModalOutside(event) {
+  if (event.target.id === "mainModal") closeModal();
+}
+
+function contactPro(name) {
+  openModal("contact", name);
+}
+
+function handleLogin() {
+  const email = document.getElementById("loginEmail")?.value.trim();
+  if (!email) return showToast("Introduce tu email para continuar.");
+  closeModal();
+  showToast("✅ Sesión iniciada. Panel de usuario preparado.");
+}
+
+function handleRegister() {
+  const terms = document.getElementById("terms");
+  const name = document.getElementById("regName")?.value.trim();
+  if (terms && !terms.checked) return showToast("Acepta los términos para crear la cuenta.");
+  if (document.getElementById("regName") && !name) return showToast("Completa tu nombre para registrarte.");
+  closeModal();
+  showToast("🎉 Cuenta creada. Ya puedes recibir solicitudes.");
+}
+
+function sendLead(name) {
+  const client = document.getElementById("leadName").value.trim();
+  const contact = document.getElementById("leadContact").value.trim();
+  const job = document.getElementById("leadJob").value.trim();
+  if (!client || !contact || !job) return showToast("Añade nombre, contacto y descripción del trabajo.");
+  const pro = professionals.find((item) => item.name === name);
+  fetch("/api/public", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      client,
+      contact,
+      job,
+      professional: name,
+      service: pro?.role,
+      city: pro?.city,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("No se pudo enviar la solicitud");
+      return response.json();
+    })
+    .then(() => {
+      closeModal();
+      showToast(`✉️ Solicitud enviada a ${name}. Ya aparece en el后台.`);
+    })
+    .catch(() => showToast("No pudimos enviar la solicitud. Inténtalo de nuevo."));
+}
+
+function switchTab(el, type) {
+  el.parentElement.querySelectorAll(".modal-tab").forEach((tab) => tab.classList.remove("active"));
+  el.classList.add("active");
+  const field = document.getElementById("profField");
+  if (field) field.style.display = type === "pro" ? "block" : "none";
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.style.transform = "translateY(0)";
+  toast.style.opacity = "1";
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => {
+    toast.style.transform = "translateY(100px)";
+    toast.style.opacity = "0";
+  }, 3600);
+}
+
+document.getElementById("searchQuery").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") doSearch();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeModal();
+});
+
+async function loadPublicData() {
+  try {
+    const response = await fetch("/api/public", { headers: { "Accept": "application/json" } });
+    if (!response.ok) throw new Error("API unavailable");
+    const data = await response.json();
+    professionals = data.professionals || professionals;
+    if (data.content?.title) document.getElementById("heroTitle").textContent = data.content.title;
+    if (data.content?.subtitle) document.getElementById("heroSubtitle").textContent = data.content.subtitle;
+    renderPros(sortProfessionals(professionals));
+  } catch {
+    renderPros(sortProfessionals(professionals));
+    showToast("Modo offline: usando datos locales.");
+  }
+}
+
+loadPublicData();
+</script>
+</body>
+</html>

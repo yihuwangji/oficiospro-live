@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OficiosPro Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --amber: #F59E0B;
+    --amber-soft: #FEF3C7;
+    --ink: #0F172A;
+    --panel: #FFFFFF;
+    --muted: #64748B;
+    --line: #E2E8F0;
+    --bg: #F8FAFC;
+    --ok: #10B981;
+    --warn: #D97706;
+    --danger: #EF4444;
+    --shadow: 0 12px 32px rgba(15,23,42,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "DM Sans", sans-serif; color: var(--ink); background: var(--bg); min-height: 100vh; }
+  button, input, select, textarea { font: inherit; }
+  a { color: inherit; text-decoration: none; }
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+  aside { background: var(--ink); color: white; padding: 24px; position: sticky; top: 0; height: 100vh; }
+  .brand { font-family: "Syne", sans-serif; font-weight: 800; font-size: 1.35rem; margin-bottom: 28px; }
+  .brand span { color: var(--amber); }
+  .nav { display: grid; gap: 8px; }
+  .nav button, .back-link {
+    width: 100%; border: 0; border-radius: 10px; padding: 11px 12px; text-align: left;
+    background: transparent; color: #CBD5E1; cursor: pointer; display: flex; gap: 10px; align-items: center;
+  }
+  .nav button.active, .nav button:hover, .back-link:hover { background: rgba(255,255,255,.1); color: white; }
+  .side-note { margin-top: 28px; padding: 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; color: #CBD5E1; font-size: .84rem; line-height: 1.5; }
+  main { padding: 28px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
+  h1, h2, h3 { font-family: "Syne", sans-serif; letter-spacing: -.01em; }
+  h1 { font-size: clamp(1.7rem, 3vw, 2.35rem); }
+  .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    border: 0; border-radius: 999px; padding: 10px 16px; background: var(--ink); color: white;
+    cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn.secondary { background: white; color: var(--ink); border: 1.5px solid var(--line); }
+  .btn.warn { background: var(--amber); }
+  .cards { display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .card, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  .card { padding: 18px; }
+  .card-label { color: var(--muted); font-size: .82rem; margin-bottom: 7px; }
+  .card-value { font-family: "Syne", sans-serif; font-weight: 800; font-size: 1.8rem; }
+  .card-trend { margin-top: 8px; color: var(--ok); font-size: .8rem; }
+  .panel { padding: 18px; margin-bottom: 18px; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+  .filters input, .filters select, textarea, .field input, .field select {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: white; color: var(--ink);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; color: var(--muted); font-size: .78rem; font-weight: 700; padding: 10px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 12px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; font-size: .9rem; }
+  tr:last-child td { border-bottom: 0; }
+  .badge { display: inline-flex; border-radius: 999px; padding: 4px 9px; font-size: .75rem; font-weight: 700; }
+  .badge.new { color: #065F46; background: #D1FAE5; }
+  .badge.pending { color: #92400E; background: #FEF3C7; }
+  .badge.closed { color: #334155; background: #E2E8F0; }
+  .row-actions { display: flex; gap: 8px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line); background: white; cursor: pointer; }
+  .grid-2 { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+  .field { display: grid; gap: 7px; margin-bottom: 12px; }
+  .field label { font-size: .8rem; color: var(--muted); font-weight: 700; }
+  .hidden { display: none; }
+  .toast {
+    position: fixed; right: 24px; bottom: 24px; background: var(--ink); color: white; padding: 13px 16px;
+    border-radius: 12px; transform: translateY(90px); opacity: 0; transition: all .25s; z-index: 10;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .login {
+    min-height: 100vh; display: grid; place-items: center; padding: 24px;
+    background: linear-gradient(135deg, #FFF7ED, #F8FAFC);
+  }
+  .login-box { width: min(420px, 100%); background: white; border: 1px solid var(--line); border-radius: 16px; padding: 28px; box-shadow: var(--shadow); }
+  .login-box p { color: var(--muted); margin: 8px 0 20px; line-height: 1.5; }
+  .demo-code { background: var(--amber-soft); color: #92400E; padding: 8px 10px; border-radius: 8px; font-size: .85rem; margin-bottom: 16px; }
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { position: static; height: auto; }
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    main { padding: 18px; }
+    header, .panel-head { align-items: flex-start; flex-direction: column; }
+    .cards { grid-template-columns: 1fr; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+<section class="login" id="loginScreen">
+  <div class="login-box">
+    <div class="brand" style="color:var(--ink)">Oficios<span>Pro</span></div>
+    <h1>Panel de administración</h1>
+    <p>Acceso privado para gestionar profesionales, solicitudes y contenido del marketplace.</p>
+    <div class="demo-code">Acceso privado: introduce la clave de administración del proyecto.</div>
+    <div class="field"><label>Email</label><input id="adminEmail" type="email" value="admin@oficiospro.es" placeholder="admin@oficiospro.es"></div>
+    <div class="field"><label>Clave</label><input id="adminPass" type="password" placeholder="Clave privada"></div>
+    <button class="btn" style="width:100%;justify-content:center" onclick="login()">Entrar al panel</button>
+  </div>
+</section>
+
+<section class="layout hidden" id="app">
+  <aside>
+    <div class="brand">Oficios<span>Pro</span></div>
+    <nav class="nav">
+      <button class="active" onclick="showView('dashboard', this)">📊 Resumen</button>
+      <button onclick="showView('leads', this)">✉️ Solicitudes</button>
+      <button onclick="showView('pros', this)">🛠 Profesionales</button>
+      <button onclick="showView('content', this)">✏️ Contenido</button>
+      <a class="back-link" href="/">← Ver web pública</a>
+    </nav>
+    <div class="side-note">Esta primera versión funciona sin servidor. Los cambios se guardan en este navegador para validar el flujo antes de conectar base de datos.</div>
+  </aside>
+
+  <main>
+    <header>
+      <div>
+        <h1 id="pageTitle">Resumen</h1>
+        <p style="color:var(--muted);margin-top:6px">Control operativo de OficiosPro</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn secondary" onclick="exportData()">Exportar JSON</button>
+        <button class="btn warn" onclick="seedData(true)">Restaurar demo</button>
+      </div>
+    </header>
+
+    <section id="dashboardView">
+      <div class="cards">
+        <div class="card"><div class="card-label">Solicitudes nuevas</div><div class="card-value" id="newLeads">0</div><div class="card-trend">+18% esta semana</div></div>
+        <div class="card"><div class="card-label">Profesionales activos</div><div class="card-value" id="activePros">0</div><div class="card-trend">9 disponibles hoy</div></div>
+        <div class="card"><div class="card-label">Conversión estimada</div><div class="card-value">34%</div><div class="card-trend">+4 puntos</div></div>
+        <div class="card"><div class="card-label">Ingresos potenciales</div><div class="card-value">8.4k€</div><div class="card-trend">pipeline mensual</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h2>Últimas solicitudes</h2><button class="btn secondary" onclick="showView('leads')">Ver todas</button></div>
+          <table><thead><tr><th>Cliente</th><th>Servicio</th><th>Ciudad</th><th>Estado</th></tr></thead><tbody id="latestLeads"></tbody></table>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Servicios con más demanda</h2></div>
+          <table><thead><tr><th>Servicio</th><th>Solicitudes</th><th>Tendencia</th></tr></thead><tbody id="demandRows"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="leadsView" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Solicitudes de clientes</h2>
+          <div class="filters">
+            <input id="leadSearch" placeholder="Buscar cliente o servicio" oninput="renderLeads()">
+            <select id="leadStatus" onchange="renderLeads()"><option value="">Todos</option><option value="new">Nuevo</option><option value="pending">En curso</option><option value="closed">Cerrado</option></select>
+          </div>
+        </div>
+        <table><thead><tr><th>Cliente</th><th>Contacto</th><th>Servicio</th><th>Ciudad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="leadRows"></tbody></table>
+      </div>
+    </section>
+
+    <section id="prosView" class="hidden">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head"><h2>Profesionales</h2><button class="btn secondary" onclick="clearProForm()">Nuevo</button></div>
+          <table><thead><tr><th>Nombre</th><th>Oficio</th><th>Ciudad</th><th>Rating</th><th>Activo</th><th></th></tr></thead><tbody id="proRows"></tbody></table>
+        </div>
+        <div class="panel">
+          <h2 id="proFormTitle">Nuevo profesional</h2>
+          <div class="field"><label>Nombre</label><input id="proName"></div>
+          <div class="field"><label>Oficio</label><input id="proRole"></div>
+          <div class="field"><label>Ciudad</label><input id="proCity"></div>
+          <div class="field"><label>Valoración</label><input id="proRating" type="number" min="1" max="5" step=".1"></div>
+          <div class="field"><label>Precio por hora</label><input id="proPrice" type="number" min="1"></div>
+          <div class="field"><label>Estado</label><select id="proActive"><option value="true">Activo</option><option value="false">Pausado</option></select></div>
+          <button class="btn" onclick="savePro()">Guardar profesional</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="contentView" class="hidden">
+      <div class="panel">
+        <div class="panel-head"><h2>Contenido de portada</h2></div>
+        <div class="field"><label>Titular</label><input id="heroTitle"></div>
+        <div class="field"><label>Subtítulo</label><textarea id="heroSub" rows="4"></textarea></div>
+        <button class="btn" onclick="saveContent()">Guardar contenido</button>
+      </div>
+      <div class="panel">
+        <h2>Estado de publicación</h2>
+        <p style="color:var(--muted);line-height:1.6;margin-top:8px">Producción: <a href="https://oficiospro-live.netlify.app" target="_blank">https://oficiospro-live.netlify.app</a></p>
+      </div>
+    </section>
+  </main>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let data = { leads: [], professionals: [], content: {} };
+let editingPro = null;
+let adminToken = sessionStorage.getItem("oficiospro_admin_token") || "";
+
+async function api(path = "", options = {}) {
+  const response = await fetch(`/api/admin${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-token": adminToken,
+      ...(options.headers || {}),
+    },
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error || "API error");
+  return payload;
+}
+
+async function loadData() {
+  data = await api();
+  data.professionals = data.professionals || [];
+  data.leads = data.leads || [];
+  data.content = data.content || {};
+  renderAll();
+}
+
+async function seedData(force = false) {
+  if (!force) return loadData();
+  data = await api("/reset", { method: "POST" });
+  renderAll();
+  toast("Datos reales restaurados.");
+}
+
+async function login() {
+  adminToken = document.getElementById("adminPass").value;
+  try {
+    sessionStorage.setItem("oficiospro_admin_token", adminToken);
+    await loadData();
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+  } catch {
+    sessionStorage.removeItem("oficiospro_admin_token");
+    toast("Clave incorrecta o API no disponible.");
+  }
+}
+
+function showView(view, button) {
+  const titles = { dashboard: "Resumen", leads: "Solicitudes", pros: "Profesionales", content: "Contenido" };
+  document.getElementById("pageTitle").textContent = titles[view];
+  ["dashboard", "leads", "pros", "content"].forEach((name) => {
+    document.getElementById(`${name}View`).classList.toggle("hidden", name !== view);
+  });
+  document.querySelectorAll(".nav button").forEach((btn) => btn.classList.remove("active"));
+  if (button) button.classList.add("active");
+  renderAll();
+}
+
+function statusBadge(status) {
+  const labels = { new: "Nuevo", pending: "En curso", closed: "Cerrado" };
+  return `<span class="badge ${status}">${labels[status]}</span>`;
+}
+
+function renderDashboard() {
+  document.getElementById("newLeads").textContent = data.leads.filter((lead) => lead.status === "new").length;
+  document.getElementById("activePros").textContent = data.professionals.filter((pro) => pro.available).length;
+  document.getElementById("latestLeads").innerHTML = data.leads.slice(0, 4).map((lead) => `<tr><td>${lead.client}</td><td>${lead.service}</td><td>${lead.city}</td><td>${statusBadge(lead.status)}</td></tr>`).join("");
+  const demand = data.leads.reduce((acc, lead) => ({ ...acc, [lead.service]: (acc[lead.service] || 0) + 1 }), {});
+  document.getElementById("demandRows").innerHTML = Object.entries(demand).map(([service, total]) => `<tr><td>${service}</td><td>${total}</td><td><span class="badge new">Subiendo</span></td></tr>`).join("");
+}
+
+function renderLeads() {
+  const query = document.getElementById("leadSearch")?.value.toLowerCase() || "";
+  const status = document.getElementById("leadStatus")?.value || "";
+  const rows = data.leads.filter((lead) => {
+    const text = `${lead.client} ${lead.contact} ${lead.service} ${lead.city}`.toLowerCase();
+    return (!query || text.includes(query)) && (!status || lead.status === status);
+  });
+  document.getElementById("leadRows").innerHTML = rows.map((lead) => `
+    <tr>
+      <td>${lead.client}</td><td>${lead.contact}</td><td>${lead.service}</td><td>${lead.city}</td><td>${statusBadge(lead.status)}</td>
+      <td class="row-actions">
+        <button class="icon-btn" title="Marcar en curso" onclick="setLeadStatus(${lead.id}, 'pending')">↻</button>
+        <button class="icon-btn" title="Cerrar" onclick="setLeadStatus(${lead.id}, 'closed')">✓</button>
+      </td>
+    </tr>`).join("");
+}
+
+async function setLeadStatus(id, status) {
+  data = await api("/lead-status", { method: "PATCH", body: JSON.stringify({ id, status }) });
+  renderAll();
+  toast("Solicitud actualizada.");
+}
+
+function renderPros() {
+  document.getElementById("proRows").innerHTML = data.professionals.map((pro) => `
+    <tr>
+      <td>${pro.name}</td><td>${pro.role}</td><td>${pro.city}</td><td>${pro.rating}</td><td>${pro.available ? "Sí" : "No"}</td>
+      <td class="row-actions"><button class="icon-btn" onclick="editPro(${pro.id})">✎</button><button class="icon-btn" onclick="deletePro(${pro.id})">×</button></td>
+    </tr>`).join("");
+}
+
+function editPro(id) {
+  const pro = data.professionals.find((item) => item.id === id);
+  editingPro = id;
+  document.getElementById("proFormTitle").textContent = "Editar profesional";
+  document.getElementById("proName").value = pro.name;
+  document.getElementById("proRole").value = pro.role;
+  document.getElementById("proCity").value = pro.city;
+  document.getElementById("proRating").value = pro.rating;
+  document.getElementById("proPrice").value = pro.price;
+  document.getElementById("proActive").value = String(pro.available);
+}
+
+function clearProForm() {
+  editingPro = null;
+  document.getElementById("proFormTitle").textContent = "Nuevo profesional";
+  ["proName", "proRole", "proCity", "proRating", "proPrice"].forEach((id) => document.getElementById(id).value = "");
+  document.getElementById("proActive").value = "true";
+}
+
+async function savePro() {
+  const pro = {
+    id: editingPro || Date.now(),
+    name: document.getElementById("proName").value.trim(),
+    role: document.getElementById("proRole").value.trim(),
+    city: document.getElementById("proCity").value.trim(),
+    rating: Number(document.getElementById("proRating").value || 4.5),
+    price: Number(document.getElementById("proPrice").value || 25),
+    available: document.getElementById("proActive").value === "true"
+  };
+  if (!pro.name || !pro.role || !pro.city) return toast("Completa nombre, oficio y ciudad.");
+  data = await api("/professional", { method: "POST", body: JSON.stringify(pro) });
+  clearProForm();
+  renderAll();
+  toast("Profesional guardado.");
+}
+
+async function deletePro(id) {
+  data = await api("/professional", { method: "DELETE", body: JSON.stringify({ id }) });
+  renderAll();
+  toast("Profesional eliminado.");
+}
+
+function renderContent() {
+  document.getElementById("heroTitle").value = data.content.title;
+  document.getElementById("heroSub").value = data.content.subtitle;
+}
+
+async function saveContent() {
+  data = await api("/content", {
+    method: "PATCH",
+    body: JSON.stringify({
+      title: document.getElementById("heroTitle").value.trim(),
+      subtitle: document.getElementById("heroSub").value.trim(),
+    }),
+  });
+  renderAll();
+  toast("Contenido guardado.");
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "oficiospro-admin-data.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderAll() {
+  renderDashboard();
+  renderLeads();
+  renderPros();
+  renderContent();
+}
+
+function toast(message) {
+  const box = document.getElementById("toast");
+  box.textContent = message;
+  box.classList.add("show");
+  clearTimeout(window.toastTimer);
+  window.toastTimer = setTimeout(() => box.classList.remove("show"), 2800);
+}
+
+if (adminToken) {
+  document.getElementById("loginScreen").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  loadData().catch(() => {
+    sessionStorage.removeItem("oficiospro_admin_token");
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("app").classList.add("hidden");
+  });
+}
+</script>
+</body>
+</html>
