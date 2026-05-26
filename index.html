@@ -168,8 +168,11 @@
   .prof-price { font-family: 'Syne', sans-serif; }
   .prof-price-amount { font-size: 1.2rem; font-weight: 800; color: var(--slate); }
   .prof-price-unit { font-size: 0.78rem; color: var(--muted); }
+  .prof-actions { display: flex; align-items: center; gap: 8px; }
   .btn-contact { background: var(--slate); color: var(--white); padding: 9px 20px; border-radius: 100px; font-size: 0.85rem; font-weight: 500; border: none; cursor: pointer; transition: all .2s; }
   .btn-contact:hover { background: var(--amber); }
+  .btn-share { background: var(--white); color: var(--slate); border: 1.5px solid var(--border); padding: 9px 12px; border-radius: 100px; font-size: .85rem; cursor: pointer; transition: all .2s; }
+  .btn-share:hover { border-color: var(--amber); color: var(--amber-dark); }
   .results-toolbar {
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
     margin: -20px 0 24px; padding: 14px 16px; border: 1.5px solid var(--border);
@@ -277,6 +280,20 @@
   .contact-details { color: var(--muted); font-size: .84rem; margin-top: 3px; }
   .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
   .quick-actions .btn-register { font-size: .9rem; padding: 12px; }
+  .share-card {
+    border-radius: 18px; overflow: hidden; border: 1.5px solid var(--border);
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 56%, #F59E0B 180%);
+    color: white; box-shadow: var(--shadow-hover); margin: 20px 0;
+  }
+  .share-card-top { padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+  .share-card-avatar { width: 74px; height: 74px; border-radius: 18px; background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; font-size: 2.3rem; }
+  .share-card-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; }
+  .share-card-role { color: #FDE68A; font-size: .92rem; margin-top: 4px; }
+  .share-card-body { background: white; color: var(--slate); padding: 18px 24px 22px; }
+  .share-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+  .share-card-stat { border: 1px solid var(--border); border-radius: 12px; padding: 10px; }
+  .share-card-stat span { display: block; color: var(--muted); font-size: .72rem; margin-bottom: 3px; }
+  .share-link-box { word-break: break-all; background: #F8FAFC; border: 1px dashed var(--border); border-radius: 10px; padding: 10px; color: var(--muted); font-size: .82rem; }
   .modal-tabs { display: flex; gap: 0; border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
   .modal-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all .2s; }
   .modal-tab.active { background: var(--slate); color: white; }
@@ -845,7 +862,10 @@ function renderPros(list) {
         <div class="prof-card-desc">${p.desc}</div>
         <div class="prof-card-footer">
           <div class="prof-price"><span class="prof-price-amount">${p.price}€</span><span class="prof-price-unit">/hora</span></div>
-          <button class="btn-contact" onclick="contactPro('${p.name.replace(/'/g, "\\'")}')">Contactar</button>
+          <div class="prof-actions">
+            <button class="btn-share" onclick="sharePro('${String(p.id || p.name).replace(/'/g, "\\'")}')">名片 / Compartir</button>
+            <button class="btn-contact" onclick="contactPro('${p.name.replace(/'/g, "\\'")}')">Contactar</button>
+          </div>
         </div>
       </div>
     </article>
@@ -902,6 +922,18 @@ function setCity(city) {
   applyFilters({ scroll: true });
 }
 
+function getProByRef(ref) {
+  return professionals.find((p) => String(p.id || p.name) === String(ref)) ||
+    professionals.find((p) => p.name === ref);
+}
+
+function getShareUrl(pro) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("pro", String(pro.id || pro.name));
+  url.hash = "profesionales";
+  return url.toString();
+}
+
 function openModal(type, proName = "") {
   const modal = document.getElementById("mainModal");
   const title = document.getElementById("modalTitle");
@@ -931,6 +963,36 @@ function openModal(type, proName = "") {
       <div class="quick-actions">
         <button class="btn-register" onclick="sendLead('${pro.name.replace(/'/g, "\\'")}')">Enviar solicitud</button>
         <button class="btn-register" style="background:var(--amber)" onclick="showToast('📞 Te mostramos el teléfono de ${pro.name}.')">Ver teléfono</button>
+      </div>`;
+  } else if (type === "share") {
+    const pro = getProByRef(proName);
+    if (!pro) return showToast("No encontramos esta tarjeta.");
+    const shareUrl = getShareUrl(pro);
+    title.textContent = "名片分享 / Compartir tarjeta";
+    sub.textContent = "Envía esta tarjeta para que puedan contactar directamente.";
+    body.innerHTML = `
+      <div class="share-card">
+        <div class="share-card-top">
+          <div class="share-card-avatar">${pro.emoji}</div>
+          <div>
+            <div class="share-card-name">${pro.name}</div>
+            <div class="share-card-role">${pro.role} · ${pro.city}</div>
+          </div>
+        </div>
+        <div class="share-card-body">
+          <div class="share-card-grid">
+            <div class="share-card-stat"><span>评分 / Rating</span><strong>${pro.rating.toFixed(1)} ★</strong></div>
+            <div class="share-card-stat"><span>价格 / Precio</span><strong>${pro.price}€/hora</strong></div>
+            <div class="share-card-stat"><span>回复 / Respuesta</span><strong>${pro.response}</strong></div>
+            <div class="share-card-stat"><span>经验 / Trabajos</span><strong>${pro.jobs}</strong></div>
+          </div>
+          <p style="color:var(--muted);font-size:.88rem;line-height:1.55;margin-bottom:12px">${pro.desc}</p>
+          <div class="share-link-box" id="shareLink">${shareUrl}</div>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <button class="btn-register" onclick="copyShareLink()">复制链接 / Copiar link</button>
+        <button class="btn-register" style="background:var(--amber)" onclick="contactPro('${pro.name.replace(/'/g, "\\'")}')">Contactar</button>
       </div>`;
   } else {
     title.textContent = "Crear cuenta gratis";
@@ -964,6 +1026,19 @@ function closeModalOutside(event) {
 
 function contactPro(name) {
   openModal("contact", name);
+}
+
+function sharePro(ref) {
+  const pro = getProByRef(ref);
+  if (!pro) return showToast("No encontramos esta tarjeta.");
+  openModal("share", String(pro.id || pro.name));
+}
+
+function copyShareLink() {
+  const text = document.getElementById("shareLink")?.textContent || window.location.href;
+  navigator.clipboard?.writeText(text)
+    .then(() => showToast("链接已复制 / Link copiado."))
+    .catch(() => showToast(text));
 }
 
 function handleLogin() {
@@ -1078,6 +1153,8 @@ async function loadPublicData() {
     if (data.content?.title) document.getElementById("heroTitle").textContent = data.content.title;
     if (data.content?.subtitle) document.getElementById("heroSubtitle").textContent = data.content.subtitle;
     renderPros(sortProfessionals(professionals));
+    const sharedPro = new URLSearchParams(window.location.search).get("pro");
+    if (sharedPro) setTimeout(() => sharePro(sharedPro), 300);
   } catch {
     renderPros(sortProfessionals(professionals));
     showToast("Modo offline: usando datos locales.");
