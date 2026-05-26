@@ -618,7 +618,7 @@
     <div class="footer-col">
       <h4>Empresa</h4>
       <a href="#">Quiénes somos</a><a href="#">Prensa</a><a href="#">Blog</a>
-      <a href="#">Ayuda</a><a href="#">Privacidad</a><a href="#">Términos</a><a href="/admin.html">后台 Admin</a>
+      <a href="#">Ayuda</a><a href="#">Privacidad</a><a href="#">Términos</a><a href="/admin.html">Admin</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -864,8 +864,8 @@ function renderPros(list) {
         <div class="prof-card-footer">
           <div class="prof-price"><span class="prof-price-amount">${p.price}€</span><span class="prof-price-unit">/hora</span></div>
           <div class="prof-actions">
-            <button class="btn-share" onclick="sharePro('${String(p.id || p.name).replace(/'/g, "\\'")}')">名片 / Compartir</button>
-            <button class="btn-report" onclick="reportPro('${String(p.id || p.name).replace(/'/g, "\\'")}')">举报 / Denunciar</button>
+            <button class="btn-share" onclick="sharePro('${String(p.id || p.name).replace(/'/g, "\\'")}')">Compartir</button>
+            <button class="btn-report" onclick="reportPro('${String(p.id || p.name).replace(/'/g, "\\'")}')">Denunciar</button>
             <button class="btn-contact" onclick="contactPro('${p.name.replace(/'/g, "\\'")}')">Contactar</button>
           </div>
         </div>
@@ -970,7 +970,7 @@ function openModal(type, proName = "") {
     const pro = getProByRef(proName);
     if (!pro) return showToast("No encontramos esta tarjeta.");
     const shareUrl = getShareUrl(pro);
-    title.textContent = "名片分享 / Compartir tarjeta";
+    title.textContent = "Compartir tarjeta";
     sub.textContent = "Envía esta tarjeta para que puedan contactar directamente.";
     body.innerHTML = `
       <div class="share-card">
@@ -983,41 +983,41 @@ function openModal(type, proName = "") {
         </div>
         <div class="share-card-body">
           <div class="share-card-grid">
-            <div class="share-card-stat"><span>评分 / Rating</span><strong>${pro.rating.toFixed(1)} ★</strong></div>
-            <div class="share-card-stat"><span>价格 / Precio</span><strong>${pro.price}€/hora</strong></div>
-            <div class="share-card-stat"><span>回复 / Respuesta</span><strong>${pro.response}</strong></div>
-            <div class="share-card-stat"><span>经验 / Trabajos</span><strong>${pro.jobs}</strong></div>
+            <div class="share-card-stat"><span>Valoración</span><strong>${pro.rating.toFixed(1)} ★</strong></div>
+            <div class="share-card-stat"><span>Precio</span><strong>${pro.price}€/hora</strong></div>
+            <div class="share-card-stat"><span>Respuesta</span><strong>${pro.response}</strong></div>
+            <div class="share-card-stat"><span>Trabajos</span><strong>${pro.jobs}</strong></div>
           </div>
           <p style="color:var(--muted);font-size:.88rem;line-height:1.55;margin-bottom:12px">${pro.desc}</p>
           <div class="share-link-box" id="shareLink">${shareUrl}</div>
         </div>
       </div>
       <div class="quick-actions">
-        <button class="btn-register" onclick="copyShareLink()">复制链接 / Copiar link</button>
+        <button class="btn-register" onclick="copyShareLink()">Copiar enlace</button>
         <button class="btn-register" style="background:var(--amber)" onclick="contactPro('${pro.name.replace(/'/g, "\\'")}')">Contactar</button>
       </div>`;
   } else if (type === "report") {
     const pro = getProByRef(proName);
     if (!pro) return showToast("No encontramos este profesional.");
-    title.textContent = "举报 / Denunciar";
+    title.textContent = "Denunciar profesional";
     sub.textContent = "Tu reporte será revisado por el equipo de OficiosPro.";
     body.innerHTML = `
       <div class="contact-card">
         <div class="contact-avatar">${pro.emoji}</div>
         <div><div class="contact-name">${pro.name}</div><div class="contact-details">${pro.role} · ${pro.city}</div></div>
       </div>
-      <div class="form-group"><label>原因 / Motivo</label>
+      <div class="form-group"><label>Motivo</label>
         <select id="reportReason">
-          <option value="Datos falsos">Datos falsos / 虚假资料</option>
-          <option value="Precio engañoso">Precio engañoso / 价格误导</option>
-          <option value="Mala conducta">Mala conducta / 行为不当</option>
-          <option value="No responde">No responde / 不回复</option>
-          <option value="Otro">Otro / 其他</option>
+          <option value="Datos falsos">Datos falsos</option>
+          <option value="Precio engañoso">Precio engañoso</option>
+          <option value="Mala conducta">Mala conducta</option>
+          <option value="No responde">No responde</option>
+          <option value="Otro">Otro</option>
         </select>
       </div>
-      <div class="form-group"><label>详细说明 / Detalles</label><input id="reportDetails" type="text" placeholder="Describe qué ha pasado"></div>
-      <div class="form-group"><label>联系方式可选 / Contacto opcional</label><input id="reportContact" type="text" placeholder="Email o teléfono"></div>
-      <button class="btn-register" onclick="sendReport('${String(pro.id || pro.name).replace(/'/g, "\\'")}')">Enviar denuncia / 提交举报</button>`;
+      <div class="form-group"><label>Detalles</label><input id="reportDetails" type="text" placeholder="Describe qué ha pasado"></div>
+      <div class="form-group"><label>Contacto opcional</label><input id="reportContact" type="text" placeholder="Email o teléfono"></div>
+      <button class="btn-register" onclick="sendReport('${String(pro.id || pro.name).replace(/'/g, "\\'")}')">Enviar denuncia</button>`;
   } else {
     title.textContent = "Alta de profesional";
     sub.textContent = "Los clientes no se registran. Este alta es para recibir trabajos.";
@@ -1063,7 +1063,7 @@ function reportPro(ref) {
 function copyShareLink() {
   const text = document.getElementById("shareLink")?.textContent || window.location.href;
   navigator.clipboard?.writeText(text)
-    .then(() => showToast("链接已复制 / Link copiado."))
+    .then(() => showToast("Enlace copiado."))
     .catch(() => showToast(text));
 }
 
@@ -1072,7 +1072,7 @@ function sendReport(ref) {
   const reason = document.getElementById("reportReason").value;
   const details = document.getElementById("reportDetails").value.trim();
   const contact = document.getElementById("reportContact").value.trim();
-  if (!details) return showToast("请填写说明 / Añade detalles.");
+  if (!details) return showToast("Añade detalles.");
   fetch("/api/public/report", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1090,9 +1090,9 @@ function sendReport(ref) {
     })
     .then(() => {
       closeModal();
-      showToast("举报已提交 / Denuncia enviada.");
+      showToast("Denuncia enviada.");
     })
-    .catch(() => showToast("举报提交失败 / No pudimos enviar la denuncia."));
+    .catch(() => showToast("No pudimos enviar la denuncia."));
 }
 
 function handleLogin() {
@@ -1135,7 +1135,7 @@ function handleRegister() {
     })
     .then(() => {
       closeModal();
-      showToast("🎉 Perfil profesional registrado y guardado en el后台.");
+      showToast("Perfil profesional registrado y guardado.");
     })
     .catch(() => showToast("No pudimos registrar esa cuenta. Revisa si el email ya existe."));
 }
@@ -1164,7 +1164,7 @@ function sendLead(name) {
     })
     .then(() => {
       closeModal();
-      showToast(`✉️ Solicitud enviada a ${name}. Ya aparece en el后台.`);
+      showToast(`Solicitud enviada a ${name}.`);
     })
     .catch(() => showToast("No pudimos enviar la solicitud. Inténtalo de nuevo."));
 }
