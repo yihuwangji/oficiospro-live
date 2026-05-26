@@ -173,6 +173,8 @@
   .btn-contact:hover { background: var(--amber); }
   .btn-share { background: var(--white); color: var(--slate); border: 1.5px solid var(--border); padding: 9px 12px; border-radius: 100px; font-size: .85rem; cursor: pointer; transition: all .2s; }
   .btn-share:hover { border-color: var(--amber); color: var(--amber-dark); }
+  .btn-report { background: transparent; color: var(--danger); border: 1.5px solid #FECACA; padding: 9px 12px; border-radius: 100px; font-size: .85rem; cursor: pointer; transition: all .2s; }
+  .btn-report:hover { background: #FEF2F2; }
   .results-toolbar {
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
     margin: -20px 0 24px; padding: 14px 16px; border: 1.5px solid var(--border);
@@ -863,6 +865,7 @@ function renderPros(list) {
           <div class="prof-price"><span class="prof-price-amount">${p.price}€</span><span class="prof-price-unit">/hora</span></div>
           <div class="prof-actions">
             <button class="btn-share" onclick="sharePro('${String(p.id || p.name).replace(/'/g, "\\'")}')">名片 / Compartir</button>
+            <button class="btn-report" onclick="reportPro('${String(p.id || p.name).replace(/'/g, "\\'")}')">举报 / Denunciar</button>
             <button class="btn-contact" onclick="contactPro('${p.name.replace(/'/g, "\\'")}')">Contactar</button>
           </div>
         </div>
@@ -993,6 +996,28 @@ function openModal(type, proName = "") {
         <button class="btn-register" onclick="copyShareLink()">复制链接 / Copiar link</button>
         <button class="btn-register" style="background:var(--amber)" onclick="contactPro('${pro.name.replace(/'/g, "\\'")}')">Contactar</button>
       </div>`;
+  } else if (type === "report") {
+    const pro = getProByRef(proName);
+    if (!pro) return showToast("No encontramos este profesional.");
+    title.textContent = "举报 / Denunciar";
+    sub.textContent = "Tu reporte será revisado por el equipo de OficiosPro.";
+    body.innerHTML = `
+      <div class="contact-card">
+        <div class="contact-avatar">${pro.emoji}</div>
+        <div><div class="contact-name">${pro.name}</div><div class="contact-details">${pro.role} · ${pro.city}</div></div>
+      </div>
+      <div class="form-group"><label>原因 / Motivo</label>
+        <select id="reportReason">
+          <option value="Datos falsos">Datos falsos / 虚假资料</option>
+          <option value="Precio engañoso">Precio engañoso / 价格误导</option>
+          <option value="Mala conducta">Mala conducta / 行为不当</option>
+          <option value="No responde">No responde / 不回复</option>
+          <option value="Otro">Otro / 其他</option>
+        </select>
+      </div>
+      <div class="form-group"><label>详细说明 / Detalles</label><input id="reportDetails" type="text" placeholder="Describe qué ha pasado"></div>
+      <div class="form-group"><label>联系方式可选 / Contacto opcional</label><input id="reportContact" type="text" placeholder="Email o teléfono"></div>
+      <button class="btn-register" onclick="sendReport('${String(pro.id || pro.name).replace(/'/g, "\\'")}')">Enviar denuncia / 提交举报</button>`;
   } else {
     title.textContent = "Alta de profesional";
     sub.textContent = "Los clientes no se registran. Este alta es para recibir trabajos.";
@@ -1029,11 +1054,45 @@ function sharePro(ref) {
   openModal("share", String(pro.id || pro.name));
 }
 
+function reportPro(ref) {
+  const pro = getProByRef(ref);
+  if (!pro) return showToast("No encontramos este profesional.");
+  openModal("report", String(pro.id || pro.name));
+}
+
 function copyShareLink() {
   const text = document.getElementById("shareLink")?.textContent || window.location.href;
   navigator.clipboard?.writeText(text)
     .then(() => showToast("链接已复制 / Link copiado."))
     .catch(() => showToast(text));
+}
+
+function sendReport(ref) {
+  const pro = getProByRef(ref);
+  const reason = document.getElementById("reportReason").value;
+  const details = document.getElementById("reportDetails").value.trim();
+  const contact = document.getElementById("reportContact").value.trim();
+  if (!details) return showToast("请填写说明 / Añade detalles.");
+  fetch("/api/public/report", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      professionalId: pro?.id,
+      professional: pro?.name,
+      reason,
+      details,
+      contact,
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("No se pudo enviar");
+      return response.json();
+    })
+    .then(() => {
+      closeModal();
+      showToast("举报已提交 / Denuncia enviada.");
+    })
+    .catch(() => showToast("举报提交失败 / No pudimos enviar la denuncia."));
 }
 
 function handleLogin() {

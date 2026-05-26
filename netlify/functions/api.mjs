@@ -24,6 +24,7 @@ const seed = {
   users: [
     { id: 1, name: "Admin Demo", email: "admin@oficiospro.es", type: "professional", specialty: "Fontanería", city: "Madrid", createdAt: "2026-05-26T08:00:00.000Z" },
   ],
+  reports: [],
   leads: [
     { id: 1, client: "Marta G.", contact: "marta@email.com", service: "Jardinería", city: "Barcelona", job: "Podar terraza y revisar riego", professional: "Javier Ortiz", status: "new", createdAt: "2026-05-26T09:10:00.000Z" },
     { id: 2, client: "Luis R.", contact: "600 123 456", service: "Fontanería", city: "Madrid", job: "Fuga bajo fregadero", professional: "Carlos Molina", status: "pending", createdAt: "2026-05-26T10:18:00.000Z" },
@@ -55,6 +56,7 @@ async function readData() {
     existing.professionals ||= [];
     existing.leads ||= [];
     existing.users ||= [];
+    existing.reports ||= [];
     existing.content ||= {};
     existing.settings ||= { adminPasswordHash: "" };
     return existing;
@@ -128,6 +130,28 @@ async function handlePublic(req, context) {
     await writeData(data);
     return json({ user });
   }
+  if (req.method === "POST" && action === "report") {
+    data.reports ||= [];
+    const body = await parseBody(req);
+    if (!body.reason || !body.details) {
+      return json({ error: "reason and details are required" }, 400);
+    }
+    const professional = data.professionals.find((pro) => String(pro.id) === String(body.professionalId) || pro.name === body.professional);
+    const report = {
+      id: nextId(data.reports),
+      professionalId: professional?.id || null,
+      professional: professional?.name || String(body.professional || "").slice(0, 100),
+      reason: String(body.reason).slice(0, 120),
+      details: String(body.details).slice(0, 600),
+      contact: String(body.contact || "").slice(0, 160),
+      status: "new",
+      createdAt: new Date().toISOString(),
+      ipCity: context.geo?.city || "",
+    };
+    data.reports.unshift(report);
+    await writeData(data);
+    return json({ report });
+  }
   if (req.method === "POST") {
     const body = await parseBody(req);
     if (!body.client || !body.contact || !body.job) {
@@ -164,6 +188,13 @@ async function handleAdmin(req, context) {
   const body = await parseBody(req);
   if (action === "lead-status" && req.method === "PATCH") {
     data.leads = data.leads.map((lead) => lead.id === Number(body.id) ? { ...lead, status: body.status || lead.status } : lead);
+    await writeData(data);
+    return json(data);
+  }
+
+  if (action === "report-status" && req.method === "PATCH") {
+    data.reports ||= [];
+    data.reports = data.reports.map((report) => report.id === Number(body.id) ? { ...report, status: body.status || report.status } : report);
     await writeData(data);
     return json(data);
   }

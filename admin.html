@@ -117,6 +117,7 @@
       <button class="active" onclick="showView('dashboard', this)">📊 概览 / Resumen</button>
       <button onclick="showView('leads', this)">✉️ 需求 / Solicitudes</button>
       <button onclick="showView('pros', this)">🛠 师傅 / Profesionales</button>
+      <button onclick="showView('reports', this)">举报 / Denuncias</button>
       <button onclick="showView('content', this)">✏️ 内容 / Contenido</button>
       <button onclick="showView('security', this)">🔑 安全 / Seguridad</button>
       <a class="back-link" href="/">← 查看前台 / Ver web pública</a>
@@ -141,7 +142,7 @@
         <div class="card"><div class="card-label">新需求 / Solicitudes nuevas</div><div class="card-value" id="newLeads">0</div><div class="card-trend">本周 +18% / +18% esta semana</div></div>
         <div class="card"><div class="card-label">在线师傅 / Profesionales activos</div><div class="card-value" id="activePros">0</div><div class="card-trend">今日可接单 / disponibles hoy</div></div>
         <div class="card"><div class="card-label">转化率 / Conversión estimada</div><div class="card-value">34%</div><div class="card-trend">+4 puntos</div></div>
-        <div class="card"><div class="card-label">注册用户 / Usuarios registrados</div><div class="card-value" id="registeredUsers">0</div><div class="card-trend">真实账号 / cuentas reales</div></div>
+        <div class="card"><div class="card-label">举报 / Denuncias nuevas</div><div class="card-value" id="newReports">0</div><div class="card-trend">需要审核 / requieren revisión</div></div>
       </div>
       <div class="grid-2">
         <div class="panel">
@@ -187,6 +188,22 @@
       </div>
     </section>
 
+    <section id="reportsView" class="hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>举报管理 / Gestión de denuncias</h2>
+          <div class="filters">
+            <input id="reportSearch" placeholder="搜索 / Buscar" oninput="renderReports()">
+            <select id="reportStatus" onchange="renderReports()"><option value="">全部 / Todos</option><option value="new">新 / Nuevo</option><option value="pending">处理中 / En curso</option><option value="closed">已关闭 / Cerrado</option></select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>师傅 / Profesional</th><th>原因 / Motivo</th><th>说明 / Detalles</th><th>联系方式 / Contacto</th><th>时间 / Fecha</th><th>状态 / Estado</th><th>操作 / Acciones</th></tr></thead>
+          <tbody id="reportRows"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section id="contentView" class="hidden">
       <div class="panel">
         <div class="panel-head"><h2>首页内容 / Contenido de portada</h2></div>
@@ -216,7 +233,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-let data = { leads: [], professionals: [], content: {} };
+let data = { leads: [], professionals: [], reports: [], content: {} };
 let editingPro = null;
 let adminToken = sessionStorage.getItem("oficiospro_admin_token") || "";
 
@@ -238,6 +255,7 @@ async function loadData() {
   data = await api();
   data.professionals = data.professionals || [];
   data.leads = data.leads || [];
+  data.reports = data.reports || [];
   data.content = data.content || {};
   renderAll();
 }
@@ -264,8 +282,9 @@ async function login() {
 
 function showView(view, button) {
   const titles = { dashboard: "概览 / Resumen", leads: "需求 / Solicitudes", pros: "师傅 / Profesionales", content: "内容 / Contenido", security: "安全 / Seguridad" };
+  titles.reports = "举报 / Denuncias";
   document.getElementById("pageTitle").textContent = titles[view];
-  ["dashboard", "leads", "pros", "content", "security"].forEach((name) => {
+  ["dashboard", "leads", "pros", "reports", "content", "security"].forEach((name) => {
     document.getElementById(`${name}View`).classList.toggle("hidden", name !== view);
   });
   document.querySelectorAll(".nav button").forEach((btn) => btn.classList.remove("active"));
@@ -281,7 +300,7 @@ function statusBadge(status) {
 function renderDashboard() {
   document.getElementById("newLeads").textContent = data.leads.filter((lead) => lead.status === "new").length;
   document.getElementById("activePros").textContent = data.professionals.filter((pro) => pro.available).length;
-  document.getElementById("registeredUsers").textContent = (data.users || []).length;
+  document.getElementById("newReports").textContent = data.reports.filter((report) => report.status === "new").length;
   document.getElementById("latestLeads").innerHTML = data.leads.slice(0, 4).map((lead) => `<tr><td>${lead.client}</td><td>${lead.service}</td><td>${lead.city}</td><td>${statusBadge(lead.status)}</td></tr>`).join("");
   const demand = data.leads.reduce((acc, lead) => ({ ...acc, [lead.service]: (acc[lead.service] || 0) + 1 }), {});
   document.getElementById("demandRows").innerHTML = Object.entries(demand).map(([service, total]) => `<tr><td>${service}</td><td>${total}</td><td><span class="badge new">上升 / Subiendo</span></td></tr>`).join("");
@@ -308,6 +327,35 @@ async function setLeadStatus(id, status) {
   data = await api("/lead-status", { method: "PATCH", body: JSON.stringify({ id, status }) });
   renderAll();
   toast("Solicitud actualizada.");
+}
+
+function renderReports() {
+  const query = document.getElementById("reportSearch")?.value.toLowerCase() || "";
+  const status = document.getElementById("reportStatus")?.value || "";
+  const rows = data.reports.filter((report) => {
+    const text = `${report.professional || ""} ${report.reason || ""} ${report.details || ""} ${report.contact || ""}`.toLowerCase();
+    return (!query || text.includes(query)) && (!status || report.status === status);
+  });
+  document.getElementById("reportRows").innerHTML = rows.map((report) => `
+    <tr>
+      <td>${report.professional || "-"}</td>
+      <td>${report.reason || "-"}</td>
+      <td>${report.details || "-"}</td>
+      <td>${report.contact || "-"}</td>
+      <td>${report.createdAt ? new Date(report.createdAt).toLocaleString("es-ES") : "-"}</td>
+      <td>${statusBadge(report.status || "new")}</td>
+      <td class="row-actions">
+        <button class="icon-btn" title="Marcar en curso" onclick="setReportStatus(${report.id}, 'pending')">↗</button>
+        <button class="icon-btn" title="Cerrar" onclick="setReportStatus(${report.id}, 'closed')">✓</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="7">暂无举报 / Sin denuncias.</td></tr>`;
+}
+
+async function setReportStatus(id, status) {
+  data = await api("/report-status", { method: "PATCH", body: JSON.stringify({ id, status }) });
+  data.reports = data.reports || [];
+  renderAll();
+  toast("Denuncia actualizada.");
 }
 
 function renderPros() {
@@ -410,6 +458,7 @@ function renderAll() {
   renderDashboard();
   renderLeads();
   renderPros();
+  renderReports();
   renderContent();
 }
 
