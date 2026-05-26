@@ -101,7 +101,7 @@
 <section class="login" id="loginScreen">
   <div class="login-box">
     <div class="brand" style="color:var(--ink)">Oficios<span>Pro</span></div>
-    <h1>Panel de administración</h1>
+    <h1>后台管理 / Panel de administración</h1>
     <p>后台管理 / Panel privado para gestionar profesionales, solicitudes y contenido.</p>
     <div class="demo-code">安全访问 / Acceso privado: introduce la clave de administración del proyecto.</div>
     <div class="field"><label>邮箱 / Email</label><input id="adminEmail" type="email" value="admin@oficiospro.es" placeholder="admin@oficiospro.es"></div>
@@ -128,7 +128,7 @@
     <header>
       <div>
         <h1 id="pageTitle">Resumen</h1>
-        <p style="color:var(--muted);margin-top:6px">Control operativo de OficiosPro</p>
+        <p style="color:var(--muted);margin-top:6px">运营控制台 / Control operativo de OficiosPro</p>
       </div>
       <div class="header-actions">
         <button class="btn secondary" onclick="exportData()">导出 JSON / Exportar</button>
@@ -146,11 +146,11 @@
       <div class="grid-2">
         <div class="panel">
           <div class="panel-head"><h2>最新需求 / Últimas solicitudes</h2><button class="btn secondary" onclick="showView('leads')">查看全部 / Ver todas</button></div>
-          <table><thead><tr><th>Cliente</th><th>Servicio</th><th>Ciudad</th><th>Estado</th></tr></thead><tbody id="latestLeads"></tbody></table>
+          <table><thead><tr><th>客户 / Cliente</th><th>服务 / Servicio</th><th>城市 / Ciudad</th><th>状态 / Estado</th></tr></thead><tbody id="latestLeads"></tbody></table>
         </div>
         <div class="panel">
           <div class="panel-head"><h2>热门服务 / Servicios con más demanda</h2></div>
-          <table><thead><tr><th>Servicio</th><th>Solicitudes</th><th>Tendencia</th></tr></thead><tbody id="demandRows"></tbody></table>
+          <table><thead><tr><th>服务 / Servicio</th><th>需求 / Solicitudes</th><th>趋势 / Tendencia</th></tr></thead><tbody id="demandRows"></tbody></table>
         </div>
       </div>
     </section>
@@ -284,7 +284,7 @@ function renderDashboard() {
   document.getElementById("registeredUsers").textContent = (data.users || []).length;
   document.getElementById("latestLeads").innerHTML = data.leads.slice(0, 4).map((lead) => `<tr><td>${lead.client}</td><td>${lead.service}</td><td>${lead.city}</td><td>${statusBadge(lead.status)}</td></tr>`).join("");
   const demand = data.leads.reduce((acc, lead) => ({ ...acc, [lead.service]: (acc[lead.service] || 0) + 1 }), {});
-  document.getElementById("demandRows").innerHTML = Object.entries(demand).map(([service, total]) => `<tr><td>${service}</td><td>${total}</td><td><span class="badge new">Subiendo</span></td></tr>`).join("");
+  document.getElementById("demandRows").innerHTML = Object.entries(demand).map(([service, total]) => `<tr><td>${service}</td><td>${total}</td><td><span class="badge new">上升 / Subiendo</span></td></tr>`).join("");
 }
 
 function renderLeads() {
