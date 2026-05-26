@@ -140,7 +140,7 @@
         <div class="card"><div class="card-label">Solicitudes nuevas</div><div class="card-value" id="newLeads">0</div><div class="card-trend">+18% esta semana</div></div>
         <div class="card"><div class="card-label">Profesionales activos</div><div class="card-value" id="activePros">0</div><div class="card-trend">9 disponibles hoy</div></div>
         <div class="card"><div class="card-label">Conversión estimada</div><div class="card-value">34%</div><div class="card-trend">+4 puntos</div></div>
-        <div class="card"><div class="card-label">Ingresos potenciales</div><div class="card-value">8.4k€</div><div class="card-trend">pipeline mensual</div></div>
+        <div class="card"><div class="card-label">Usuarios registrados</div><div class="card-value" id="registeredUsers">0</div><div class="card-trend">cuentas reales</div></div>
       </div>
       <div class="grid-2">
         <div class="panel">
@@ -269,6 +269,7 @@ function statusBadge(status) {
 function renderDashboard() {
   document.getElementById("newLeads").textContent = data.leads.filter((lead) => lead.status === "new").length;
   document.getElementById("activePros").textContent = data.professionals.filter((pro) => pro.available).length;
+  document.getElementById("registeredUsers").textContent = (data.users || []).length;
   document.getElementById("latestLeads").innerHTML = data.leads.slice(0, 4).map((lead) => `<tr><td>${lead.client}</td><td>${lead.service}</td><td>${lead.city}</td><td>${statusBadge(lead.status)}</td></tr>`).join("");
   const demand = data.leads.reduce((acc, lead) => ({ ...acc, [lead.service]: (acc[lead.service] || 0) + 1 }), {});
   document.getElementById("demandRows").innerHTML = Object.entries(demand).map(([service, total]) => `<tr><td>${service}</td><td>${total}</td><td><span class="badge new">Subiendo</span></td></tr>`).join("");

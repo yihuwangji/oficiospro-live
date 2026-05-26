@@ -825,9 +825,11 @@ function openModal(type, proName = "") {
         <div class="modal-tab active" onclick="switchTab(this,'pro')">Profesional</div>
         <div class="modal-tab" onclick="switchTab(this,'client')">Cliente</div>
       </div>
+      <input id="regType" type="hidden" value="professional">
       <div class="form-group"><label>Nombre</label><input id="regName" type="text" placeholder="Tu nombre completo"></div>
       <div class="form-group"><label>Email</label><input id="regEmail" type="email" placeholder="tu@email.com"></div>
-      <div class="form-group" id="profField"><label>Especialidad</label><select><option>Fontanería</option><option>Electricidad</option><option>Pintura</option><option>Reformas</option></select></div>
+      <div class="form-group" id="profField"><label>Especialidad</label><select id="regSpecialty"><option>Fontanería</option><option>Electricidad</option><option>Pintura</option><option>Reformas</option></select></div>
+      <div class="form-group"><label>Ciudad</label><input id="regCity" type="text" placeholder="Madrid"></div>
       <div class="form-group"><label>Contraseña</label><input id="regPass" type="password" placeholder="Mínimo 8 caracteres"></div>
       <button class="btn-register" style="margin-top:8px" onclick="handleRegister()">Registrarme gratis →</button>`;
   }
@@ -858,10 +860,39 @@ function handleLogin() {
 function handleRegister() {
   const terms = document.getElementById("terms");
   const name = document.getElementById("regName")?.value.trim();
+  const email = document.getElementById("regEmail")?.value.trim();
+  const password = document.getElementById("regPass")?.value.trim();
   if (terms && !terms.checked) return showToast("Acepta los términos para crear la cuenta.");
   if (document.getElementById("regName") && !name) return showToast("Completa tu nombre para registrarte.");
-  closeModal();
-  showToast("🎉 Cuenta creada. Ya puedes recibir solicitudes.");
+  if (document.getElementById("regEmail") && !email) return showToast("Completa tu email para registrarte.");
+  if (document.getElementById("regPass") && password.length < 8) return showToast("La contraseña debe tener al menos 8 caracteres.");
+
+  if (!document.getElementById("regName")) {
+    closeModal();
+    return showToast("🎉 Cuenta creada. Ya puedes recibir solicitudes.");
+  }
+
+  fetch("/api/public/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+      type: document.getElementById("regType")?.value || "professional",
+      specialty: document.getElementById("regSpecialty")?.value || "",
+      city: document.getElementById("regCity")?.value || "",
+    }),
+  })
+    .then((response) => {
+      if (!response.ok) throw new Error("No se pudo registrar");
+      return response.json();
+    })
+    .then(() => {
+      closeModal();
+      showToast("🎉 Cuenta registrada y guardada en el后台.");
+    })
+    .catch(() => showToast("No pudimos registrar esa cuenta. Revisa si el email ya existe."));
 }
 
 function sendLead(name) {
@@ -897,6 +928,8 @@ function switchTab(el, type) {
   el.parentElement.querySelectorAll(".modal-tab").forEach((tab) => tab.classList.remove("active"));
   el.classList.add("active");
   const field = document.getElementById("profField");
+  const regType = document.getElementById("regType");
+  if (regType) regType.value = type === "client" ? "client" : "professional";
   if (field) field.style.display = type === "pro" ? "block" : "none";
 }
 

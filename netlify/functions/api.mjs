@@ -20,6 +20,9 @@ const professionals = [
 
 const seed = {
   professionals,
+  users: [
+    { id: 1, name: "Admin Demo", email: "admin@oficiospro.es", type: "professional", specialty: "Fontanería", city: "Madrid", createdAt: "2026-05-26T08:00:00.000Z" },
+  ],
   leads: [
     { id: 1, client: "Marta G.", contact: "marta@email.com", service: "Jardinería", city: "Barcelona", job: "Podar terraza y revisar riego", professional: "Javier Ortiz", status: "new", createdAt: "2026-05-26T09:10:00.000Z" },
     { id: 2, client: "Luis R.", contact: "600 123 456", service: "Fontanería", city: "Madrid", job: "Fuga bajo fregadero", professional: "Carlos Molina", status: "pending", createdAt: "2026-05-26T10:18:00.000Z" },
@@ -75,8 +78,32 @@ function nextId(items) {
 
 async function handlePublic(req, context) {
   const data = await readData();
+  const action = context.params.action;
   if (req.method === "GET") {
     return json({ professionals: data.professionals, content: data.content });
+  }
+  if (req.method === "POST" && action === "register") {
+    data.users ||= [];
+    const body = await parseBody(req);
+    if (!body.name || !body.email || !body.password) {
+      return json({ error: "name, email and password are required" }, 400);
+    }
+    const email = String(body.email).trim().toLowerCase().slice(0, 160);
+    if (data.users.some((user) => user.email === email)) {
+      return json({ error: "email already registered" }, 409);
+    }
+    const user = {
+      id: nextId(data.users),
+      name: String(body.name).trim().slice(0, 100),
+      email,
+      type: body.type === "client" ? "client" : "professional",
+      specialty: String(body.specialty || "").slice(0, 80),
+      city: String(body.city || "").slice(0, 80),
+      createdAt: new Date().toISOString(),
+    };
+    data.users.unshift(user);
+    await writeData(data);
+    return json({ user });
   }
   if (req.method === "POST") {
     const body = await parseBody(req);
